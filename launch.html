@@ -73,17 +73,8 @@ nav {
 /* ─── Form wrap ──────────────────────────── */
 .launch-form-wrap { max-width: 680px; margin: 0 auto; padding: 0 40px 80px; }
 
-/* Step dots */
-.steps-indicator { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 36px; }
-.step-dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(26,26,26,0.25); background: var(--paper); display: flex; align-items: center; justify-content: center; font-family: var(--font-brush); font-size: 1rem; color: var(--ink-faint); transition: all 0.2s; }
-.step-dot.active { border-color: var(--blue); background: var(--blue); color: var(--paper); box-shadow: 2px 2px 0 var(--ink); }
-.step-dot.done { border-color: var(--green); background: var(--green); color: var(--paper); }
-.step-line { width: 60px; height: 2px; background: repeating-linear-gradient(90deg, rgba(26,26,26,0.2) 0, rgba(26,26,26,0.2) 6px, transparent 6px, transparent 12px); }
-.step-line.done { background: var(--green); }
-
 /* Form card */
-.form-card { background: var(--paper-dark); border: 2px solid var(--ink); border-radius: 12px; padding: 36px; box-shadow: 5px 5px 0 var(--ink); display: none; }
-.form-card.active { display: block; }
+.form-card { background: var(--paper-dark); border: 2px solid var(--ink); border-radius: 12px; padding: 36px; box-shadow: 5px 5px 0 var(--ink); }
 .form-card-title { font-family: var(--font-brush); font-size: 1.6rem; color: var(--ink); margin-bottom: 6px; }
 .form-card-desc { font-size: 1rem; color: var(--ink-light); margin-bottom: 28px; line-height: 1.5; }
 
@@ -141,25 +132,8 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 .slider-wrap input[type="range"] { flex: 1; accent-color: var(--blue); }
 .slider-val { font-family: var(--font-brush); font-size: 1.2rem; color: var(--blue); min-width: 60px; text-align: right; }
 
-/* Review */
-.review-image { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
-.review-image img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--blue); }
-.review-token-name { font-family: var(--font-brush); font-size: 1.5rem; color: var(--ink); }
-.review-token-ticker { font-size: 1rem; color: var(--blue); }
-.review-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-.review-table tr { border-bottom: 1px dashed rgba(26,26,26,0.12); }
-.review-table tr:last-child { border-bottom: none; }
-.review-table td { padding: 10px 4px; font-size: 1rem; }
-.review-table td:first-child { color: var(--ink-faint); width: 40%; }
-.review-table td:last-child { font-weight: 700; color: var(--ink); }
-
 /* Buttons */
-.form-nav { display: flex; gap: 12px; justify-content: space-between; margin-top: 28px; }
-.btn-back { font-family: var(--font-brush); font-size: 1.1rem; background: transparent; color: var(--ink); border: 2px solid rgba(26,26,26,0.3); border-radius: 8px; padding: 10px 24px; cursor: pointer; transition: all 0.15s; }
-.btn-back:hover { border-color: var(--ink); }
-.btn-next { font-family: var(--font-brush); font-size: 1.1rem; background: var(--ink); color: var(--paper); border: 2px solid var(--ink); border-radius: 8px; padding: 10px 28px; cursor: pointer; box-shadow: 3px 3px 0 var(--blue); transition: all 0.15s; flex: 1; }
-.btn-next:hover { box-shadow: 5px 5px 0 var(--blue); transform: translate(-1px,-1px); }
-.btn-launch { font-family: var(--font-brush); font-size: 1.2rem; background: var(--green); color: var(--paper); border: 2px solid var(--ink); border-radius: 8px; padding: 12px 32px; cursor: pointer; box-shadow: 4px 4px 0 var(--ink); transition: all 0.15s; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-launch { font-family: var(--font-brush); font-size: 1.2rem; background: var(--green); color: var(--paper); border: 2px solid var(--ink); border-radius: 8px; padding: 14px 32px; cursor: pointer; box-shadow: 4px 4px 0 var(--ink); transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-launch:hover { box-shadow: 6px 6px 0 var(--ink); transform: translate(-2px,-2px); }
 .btn-launch:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--ink); }
 
@@ -286,8 +260,8 @@ footer a:hover { color: var(--blue); }
   .form-card { padding: 24px 20px; }
   .dash-stats { grid-template-columns: 1fr 1fr; }
   .dash-settings { grid-template-columns: 1fr; }
-  .step-line { width: 32px; }
   footer { flex-direction: column; gap: 10px; text-align: center; }
+  .name-ticker-row, .social-row { grid-template-columns: 1fr !important; }
 }
 </style>
 </head>
@@ -344,21 +318,11 @@ footer a:hover { color: var(--blue); }
   <!-- ─── Form ──────────────────────────── -->
   <div class="launch-form-wrap" id="form-section">
 
-    <div class="steps-indicator">
-      <div class="step-dot active" id="sdot-1">1</div>
-      <div class="step-line" id="sline-1"></div>
-      <div class="step-dot" id="sdot-2">2</div>
-      <div class="step-line" id="sline-2"></div>
-      <div class="step-dot" id="sdot-3">3</div>
-      <div class="step-line" id="sline-3"></div>
-      <div class="step-dot" id="sdot-4">4</div>
-    </div>
-
-    <!-- Step 1: Token Details -->
-    <div class="form-card active" id="step-1">
+    <div class="form-card active" id="launch-form">
       <div class="form-card-title">Token Details</div>
-      <div class="form-card-desc">Name your token, set the ticker, and write a description.</div>
+      <div class="form-card-desc">Fill in your token info, choose your LP schedule, and launch in one step.</div>
 
+      <!-- Image upload -->
       <div class="form-group">
         <label class="form-label">Token Image</label>
         <div class="image-upload-zone" id="upload-zone">
@@ -376,16 +340,18 @@ footer a:hover { color: var(--blue); }
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="token-name">Token Name</label>
-        <input class="form-input" type="text" id="token-name" placeholder="e.g. Self Runner" maxlength="32" oninput="updateChar('token-name','name-count',32)" />
-        <div class="char-count"><span id="name-count">0</span>/32</div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="token-symbol">Ticker Symbol</label>
-        <input class="form-input" type="text" id="token-symbol" placeholder="e.g. RUN" maxlength="10" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase();updateChar('token-symbol','sym-count',10)" />
-        <div class="char-count"><span id="sym-count">0</span>/10</div>
+      <!-- Name + Ticker row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label class="form-label" for="token-name">Token Name</label>
+          <input class="form-input" type="text" id="token-name" placeholder="e.g. Self Runner" maxlength="32" oninput="updateChar('token-name','name-count',32)" />
+          <div class="char-count"><span id="name-count">0</span>/32</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="token-symbol">Ticker Symbol</label>
+          <input class="form-input" type="text" id="token-symbol" placeholder="e.g. RUN" maxlength="10" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase();updateChar('token-symbol','sym-count',10)" />
+          <div class="char-count"><span id="sym-count">0</span>/10</div>
+        </div>
       </div>
 
       <div class="form-group">
@@ -394,40 +360,30 @@ footer a:hover { color: var(--blue); }
         <div class="char-count"><span id="desc-count">0</span>/500</div>
       </div>
 
-      <div class="error-msg" id="err-1">Please fill in all required fields and upload an image.</div>
-      <div class="form-nav">
-        <button class="btn-next" onclick="goToStep(2)">Continue →</button>
+      <!-- Social links -->
+      <div style="border-top:1.5px dashed rgba(26,26,26,0.12);margin:8px 0 20px;padding-top:20px;">
+        <div class="form-card-title" style="font-size:1.2rem;margin-bottom:4px;">Social Links <span style="font-family:var(--font);font-size:0.95rem;color:var(--ink-faint);font-weight:400;">— optional</span></div>
       </div>
-    </div>
-
-    <!-- Step 2: Social Links -->
-    <div class="form-card" id="step-2">
-      <div class="form-card-title">Social Links <span style="font-family:var(--font);font-size:1rem;color:var(--ink-faint);font-weight:400;">— optional</span></div>
-      <div class="form-card-desc">Add links to your token page on Pump.fun.</div>
-
-      <div class="form-group">
-        <label class="form-label" for="token-twitter">X / Twitter <span>optional</span></label>
-        <input class="form-input" type="url" id="token-twitter" placeholder="https://x.com/yourtoken" />
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="token-telegram">Telegram <span>optional</span></label>
-        <input class="form-input" type="url" id="token-telegram" placeholder="https://t.me/yourtoken" />
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="token-website">Website <span>optional</span></label>
-        <input class="form-input" type="url" id="token-website" placeholder="https://yourtoken.com" />
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label class="form-label" for="token-twitter">X / Twitter <span>optional</span></label>
+          <input class="form-input" type="url" id="token-twitter" placeholder="https://x.com/yourtoken" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="token-telegram">Telegram <span>optional</span></label>
+          <input class="form-input" type="url" id="token-telegram" placeholder="https://t.me/yourtoken" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="token-website">Website <span>optional</span></label>
+          <input class="form-input" type="url" id="token-website" placeholder="https://yourtoken.com" />
+        </div>
       </div>
 
-      <div class="form-nav">
-        <button class="btn-back" onclick="goToStep(1)">← Back</button>
-        <button class="btn-next" onclick="goToStep(3)">Continue →</button>
+      <!-- LP Distribution -->
+      <div style="border-top:1.5px dashed rgba(26,26,26,0.12);margin:8px 0 20px;padding-top:20px;">
+        <div class="form-card-title" style="font-size:1.2rem;margin-bottom:4px;">LP Distribution Schedule</div>
+        <div class="form-card-desc" style="margin-bottom:16px;">100% of creator fees go into your LP every cycle — no split, no diversion.</div>
       </div>
-    </div>
-
-    <!-- Step 3: LP Distribution -->
-    <div class="form-card" id="step-3">
-      <div class="form-card-title">LP Distribution Schedule</div>
-      <div class="form-card-desc">Choose how often your creator fees are automatically flushed into your LP. 100% of fees go in every cycle — no split, no diversion.</div>
 
       <div class="form-group">
         <label class="form-label">Distribution Interval</label>
@@ -475,45 +431,14 @@ footer a:hover { color: var(--blue); }
         <div style="font-size:0.88rem;color:var(--ink-faint);margin-top:6px;">Purchases tokens immediately after creation in the same transaction.</div>
       </div>
 
-      <div class="form-nav">
-        <button class="btn-back" onclick="goToStep(2)">← Back</button>
-        <button class="btn-next" onclick="goToStep(4)">Review →</button>
-      </div>
-    </div>
-
-    <!-- Step 4: Review & Launch -->
-    <div class="form-card" id="step-4">
-      <div class="form-card-title">Review & Launch</div>
-      <div class="form-card-desc">Double-check everything before signing. Once launched, the token is permanent.</div>
-
-      <div class="review-image">
-        <img id="review-img" src="" alt="" />
-        <div>
-          <div class="review-token-name" id="review-name">—</div>
-          <div class="review-token-ticker" id="review-ticker">$—</div>
-        </div>
-      </div>
-
-      <table class="review-table">
-        <tr><td>Description</td><td id="review-desc" style="word-break:break-word;">—</td></tr>
-        <tr><td>Twitter</td><td id="review-twitter">—</td></tr>
-        <tr><td>Telegram</td><td id="review-telegram">—</td></tr>
-        <tr><td>Website</td><td id="review-website">—</td></tr>
-        <tr><td>Dev buy</td><td id="review-devbuy">0 SOL</td></tr>
-        <tr><td>LP distribution</td><td id="review-interval" style="color:var(--blue);">Every 30 minutes</td></tr>
-        <tr><td>Creator fees</td><td style="color:var(--green);">100% → LP (autonomous)</td></tr>
-        <tr><td>Network</td><td>Solana Mainnet · Pump.fun</td></tr>
-      </table>
-
       <div class="callout-blue">
         <strong>Connect your wallet to launch.</strong> You'll sign one transaction in Phantom, Solflare, or Backpack. Token is created and Self Runner LP routing is configured in a single step.
       </div>
 
-      <div class="error-msg" id="err-4"></div>
+      <div class="error-msg" id="err-launch"></div>
 
-      <div class="form-nav">
-        <button class="btn-back" onclick="goToStep(3)">← Back</button>
-        <button class="btn-launch" id="launch-btn" onclick="launchToken()">
+      <div style="margin-top:24px;">
+        <button class="btn-launch" id="launch-btn" onclick="launchToken()" style="width:100%;">
           🚀 Launch Token
         </button>
       </div>
@@ -633,7 +558,6 @@ footer a:hover { color: var(--blue); }
 
 <script>
 /* ── State ──────────────────────────────── */
-let currentStep = 1;
 let walletPubkey = null;
 let imageFile = null;
 let devBuyAmount = 0;
@@ -656,7 +580,7 @@ async function connectWallet() {
   const provider = window.phantom?.solana || window.solana || window.solflare;
   if (!provider) {
     window.open('https://phantom.app', '_blank');
-    showError('err-4', 'No Solana wallet found. Please install Phantom or Solflare.');
+    showError('err-launch', 'No Solana wallet found. Please install Phantom or Solflare.');
     return null;
   }
   try {
@@ -668,7 +592,7 @@ async function connectWallet() {
     document.getElementById('wallet-dot').style.background = 'var(--green)';
     return walletPubkey;
   } catch(e) {
-    showError('err-4', 'Wallet connection rejected.');
+    showError('err-launch', 'Wallet connection rejected.');
     return null;
   }
 }
@@ -736,60 +660,6 @@ function updateChar(id, countId, max) {
 function updateDevBuy(val) {
   devBuyAmount = parseFloat(val);
   document.getElementById('dev-buy-val').textContent = devBuyAmount === 0 ? '0 SOL' : devBuyAmount.toFixed(1) + ' SOL';
-}
-
-/* ── Steps ──────────────────────────────── */
-function goToStep(n) {
-  if (n > currentStep && !validateStep(currentStep)) return;
-  document.getElementById('step-' + currentStep).classList.remove('active');
-  document.getElementById('step-' + n).classList.add('active');
-  const prev = currentStep;
-  currentStep = n;
-  for (let i = 1; i <= 4; i++) {
-    const dot = document.getElementById('sdot-' + i);
-    dot.classList.remove('active','done');
-    if (i < currentStep) dot.classList.add('done');
-    if (i === currentStep) dot.classList.add('active');
-  }
-  for (let i = 1; i <= 3; i++) {
-    const line = document.getElementById('sline-' + i);
-    line.classList.remove('done');
-    if (i < currentStep) line.classList.add('done');
-  }
-  if (n === 4) populateReview();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function validateStep(n) {
-  if (n === 1) {
-    const name = document.getElementById('token-name').value.trim();
-    const sym  = document.getElementById('token-symbol').value.trim();
-    const desc = document.getElementById('token-desc').value.trim();
-    if (!name || !sym || !desc || !imageFile) {
-      showError('err-1', 'Please fill in all required fields and upload an image.');
-      return false;
-    }
-    hideError('err-1');
-  }
-  return true;
-}
-
-function populateReview() {
-  const name   = document.getElementById('token-name').value.trim();
-  const symbol = document.getElementById('token-symbol').value.trim();
-  document.getElementById('review-name').textContent    = name || '—';
-  document.getElementById('review-ticker').textContent  = '$' + (symbol || '—');
-  document.getElementById('review-desc').textContent    = document.getElementById('token-desc').value.trim() || '—';
-  document.getElementById('review-twitter').textContent = document.getElementById('token-twitter').value.trim() || '—';
-  document.getElementById('review-telegram').textContent= document.getElementById('token-telegram').value.trim() || '—';
-  document.getElementById('review-website').textContent = document.getElementById('token-website').value.trim() || '—';
-  document.getElementById('review-devbuy').textContent  = devBuyAmount > 0 ? devBuyAmount.toFixed(1) + ' SOL' : '0 SOL (none)';
-  document.getElementById('review-interval').textContent = INTERVALS[selectedInterval].label;
-  if (imageFile) {
-    const r = new FileReader();
-    r.onload = e => document.getElementById('review-img').src = e.target.result;
-    r.readAsDataURL(imageFile);
-  }
 }
 
 /* ── Error helpers ──────────────────────── */
@@ -908,15 +778,21 @@ function addFeedItem(sol, usd) {
 
 /* ── Launch ─────────────────────────────── */
 async function launchToken() {
-  hideError('err-4');
+  hideError('err-launch');
+
+  const name     = document.getElementById('token-name').value.trim();
+  const symbol   = document.getElementById('token-symbol').value.trim();
+  const desc     = document.getElementById('token-desc').value.trim();
+  if (!name || !symbol || !desc || !imageFile) {
+    showError('err-launch', 'Please fill in token name, ticker, description, and upload an image.');
+    return;
+  }
+
   if (!walletPubkey) {
     walletPubkey = await connectWallet();
     if (!walletPubkey) return;
   }
 
-  const name     = document.getElementById('token-name').value.trim();
-  const symbol   = document.getElementById('token-symbol').value.trim();
-  const desc     = document.getElementById('token-desc').value.trim();
   const twitter  = document.getElementById('token-twitter').value.trim();
   const telegram = document.getElementById('token-telegram').value.trim();
   const website  = document.getElementById('token-website').value.trim();
@@ -988,7 +864,7 @@ async function launchToken() {
   } catch(err) {
     hideStatus();
     btn.disabled = false;
-    showError('err-4', err.message || 'Something went wrong. Please try again.');
+    showError('err-launch', err.message || 'Something went wrong. Please try again.');
     console.error(err);
   }
 }
