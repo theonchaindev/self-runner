@@ -552,7 +552,7 @@
       <div class="doc-section-title">Overview</div>
 
       <p>
-        Self Runner is an autonomous on-chain fee engine built on top of the <strong>Bootstrap liquidity protocol</strong>. Every trade that occurs against the Self Runner liquidity pool generates fees. Those fees are captured at the protocol level — before they can be distributed — and automatically routed 100% into LP depth.
+        Self Runner is an autonomous on-chain fee engine built on top of the <strong>Bootstrap liquidity protocol</strong>. Every trade that occurs against the Self Runner liquidity pool generates fees. Those fees are captured at the protocol level — before they can be distributed — and automatically routed 100% into LP depth every 30 minutes.
       </p>
       <p>
         The result is a system that compounds on itself. More trades → more fees → deeper liquidity and supply compression → more stable floor → more trades.
@@ -645,7 +645,7 @@
 
       <h3>Trigger conditions</h3>
       <p>
-        Fee routing can be triggered by anyone calling <code>routeToLP()</code> on the vault — it is a public, permissionless function. In practice, Bootstrap's off-chain keeper calls it automatically after a configurable fee accumulation threshold is reached.
+        Fee routing can be triggered by anyone calling <code>routeToLP()</code> on the vault — it is a public, permissionless function. In practice, Bootstrap's off-chain keeper calls it automatically every 30 minutes, flushing 100% of accumulated fees into the LP.
       </p>
     </div>
 
@@ -715,7 +715,7 @@
             <tr><td><code>FeeVault</code></td><td>Capturing and holding all trading fees from the $RUN pool</td></tr>
             <tr><td><code>LPRouter</code></td><td>Routes 100% of captured fees into LP depth additions</td></tr>
             <tr><td><code>LPManager</code></td><td>Concentrated liquidity additions to the $RUN pool</td></tr>
-            <tr><td><code>Keeper</code></td><td>Off-chain trigger for fee routing at accumulation thresholds</td></tr>
+            <tr><td><code>Keeper</code></td><td>Off-chain trigger — calls <code>routeToLP()</code> automatically every 30 minutes</td></tr>
           </tbody>
         </table>
       </div>
@@ -742,14 +742,14 @@
           <div class="flow-num">2</div>
           <div class="flow-body">
             <div class="flow-title">Vault accumulates</div>
-            <p class="flow-desc">Fees sit in the FeeVault until the accumulation threshold is met, or until anyone calls <code>routeToSplit()</code> manually.</p>
+            <p class="flow-desc">Fees accumulate in the FeeVault. Every 30 minutes, Bootstrap's keeper (or anyone) calls <code>routeToLP()</code> to flush the full balance into the LP.</p>
           </div>
         </div>
         <div class="flow-step">
           <div class="flow-num">3</div>
           <div class="flow-body">
             <div class="flow-title">Keeper triggers routing</div>
-            <p class="flow-desc">Bootstrap's keeper monitors the vault balance and calls <code>routeToSplit()</code> when threshold is reached. The call is permissionless — anyone can trigger it.</p>
+            <p class="flow-desc">Bootstrap's keeper fires every 30 minutes and calls <code>routeToLP()</code>. The call is permissionless — anyone can trigger it ahead of schedule if desired.</p>
           </div>
         </div>
         <div class="flow-step">
