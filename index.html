@@ -780,6 +780,15 @@
 
   <!-- Hero sketch illustration -->
   <svg class="hero-illustration" viewBox="0 0 580 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ah" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+        <path d="M0,0 L0,7 L9,3.5 z" fill="#3b6fd4" opacity="0.85"/>
+      </marker>
+      <marker id="ahf" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+        <path d="M0,0 L0,7 L9,3.5 z" fill="#3b6fd4" opacity="0.5"/>
+      </marker>
+    </defs>
+
     <!-- Paper crumple lines -->
     <path d="M0 60 Q145 55 290 62 Q435 69 580 58" stroke="#1a1a1a" stroke-width="0.6" opacity="0.08"/>
     <path d="M0 130 Q145 125 290 133 Q435 140 580 128" stroke="#1a1a1a" stroke-width="0.6" opacity="0.08"/>
@@ -791,18 +800,11 @@
     <text x="360" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Deepen LP</text>
     <text x="476" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Floor</text>
 
-    <!-- Connecting arrows (sketchy) -->
-    <path d="M88 100 Q115 92 140 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3"/>
-    <polygon points="140,96 150,100 140,104" fill="#3b6fd4" opacity="0.8"/>
-
-    <path d="M196 100 Q222 92 247 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3"/>
-    <polygon points="247,96 257,100 247,104" fill="#3b6fd4" opacity="0.8"/>
-
-    <path d="M303 100 Q330 92 355 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3"/>
-    <polygon points="355,96 365,100 355,104" fill="#3b6fd4" opacity="0.8"/>
-
-    <path d="M415 100 Q442 92 467 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3"/>
-    <polygon points="467,96 477,100 467,104" fill="#3b6fd4" opacity="0.8"/>
+    <!-- Connecting arrows — from right edge of each box to left edge of next -->
+    <path d="M90 100 Q104 92 112 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3" marker-end="url(#ah)"/>
+    <path d="M198 100 Q211 92 220 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3" marker-end="url(#ah)"/>
+    <path d="M304 100 Q318 92 328 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3" marker-end="url(#ah)"/>
+    <path d="M416 100 Q430 92 440 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3" marker-end="url(#ah)"/>
 
     <!-- Node 1: Trade -->
     <rect x="14" y="72" width="74" height="56" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
@@ -842,8 +844,7 @@
     <text x="485" y="82" font-family="Caveat,cursive" font-size="10" fill="#1a1a1a" opacity="0.5" text-anchor="middle">stable↑</text>
 
     <!-- Loopback arrow -->
-    <path d="M522 100 Q560 50 560 30 Q560 10 290 18 Q20 26 20 60" stroke="#3b6fd4" stroke-width="1.8" fill="none" stroke-dasharray="6 4" opacity="0.5" stroke-linecap="round"/>
-    <polygon points="20,60 14,50 26,50" fill="#3b6fd4" opacity="0.5"/>
+    <path d="M522 100 Q560 50 560 30 Q560 10 290 18 Q20 26 20 68" stroke="#3b6fd4" stroke-width="1.8" fill="none" stroke-dasharray="6 4" opacity="0.55" stroke-linecap="round" marker-end="url(#ahf)"/>
     <text x="290" y="14" font-family="Caveat,cursive" font-size="11" fill="#3b6fd4" opacity="0.65" text-anchor="middle">more trades →</text>
   </svg>
 </section>
@@ -920,9 +921,13 @@
     <div class="how-step" data-delay="320">
       <span class="step-num">05</span>
       <svg class="step-icon" viewBox="0 0 40 40" fill="none">
+        <defs>
+          <marker id="as5" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="#3b6fd4"/>
+          </marker>
+        </defs>
         <line x1="4" y1="32" x2="36" y2="32" stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M4 28 Q10 16 16 22 Q22 28 28 14 Q32 6 36 10" stroke="#3b6fd4" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-        <polygon points="36,10 40,8 38,14" fill="#3b6fd4"/>
+        <path d="M4 28 Q10 16 16 22 Q22 28 28 14 Q32 6 34 9" stroke="#3b6fd4" stroke-width="2.2" stroke-linecap="round" fill="none" marker-end="url(#as5)"/>
       </svg>
       <div class="step-title">Stable Floor</div>
       <div class="step-desc">A stable floor attracts more traders. More trades mean more fees. The cycle repeats.</div>
@@ -947,6 +952,11 @@
   <div class="flywheel-wrap">
     <!-- Flywheel diagram -->
     <svg class="flywheel-diagram" viewBox="0 0 420 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="afw" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+          <path d="M0,0 L0,7 L9,3.5 z" fill="#3b6fd4"/>
+        </marker>
+      </defs>
       <!-- Outer ring -->
       <circle cx="210" cy="190" r="160" stroke="#1a1a1a" stroke-width="2" stroke-dasharray="10 5" opacity="0.2"/>
 
@@ -976,26 +986,21 @@
       <text x="66" y="290" font-family="Caveat Brush,cursive" font-size="14" fill="#1a1a1a" text-anchor="middle">Stable</text>
       <text x="66" y="306" font-family="Caveat,cursive" font-size="11" fill="#3b6fd4" text-anchor="middle">more traders</text>
 
-      <!-- Arrows between nodes (curved, sketch-style) -->
+      <!-- Arrows between nodes (marker-based, auto-orient) -->
       <!-- Trade → Capture -->
-      <path d="M265 50 Q330 60 342 128" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-dasharray="0"/>
-      <polygon points="338,125 350,128 342,138" fill="#3b6fd4"/>
+      <path d="M265 46 Q332 62 340 122" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round" marker-end="url(#afw)"/>
 
       <!-- Capture → Split -->
-      <path d="M370 176 Q384 230 380 268" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <polygon points="376,265 388,268 378,278" fill="#3b6fd4"/>
+      <path d="M370 176 Q384 228 380 262" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round" marker-end="url(#afw)"/>
 
       <!-- Split → Deeper LP -->
-      <path d="M298 302 Q256 316 252 314" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <polygon points="255,310 248,320 242,310" fill="#3b6fd4"/>
+      <path d="M298 300 Q264 322 258 316" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round" marker-end="url(#afw)"/>
 
       <!-- Deeper LP → Stable Floor -->
-      <path d="M140 340 Q100 340 116 292" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <polygon points="112,295 120,285 126,295" fill="#3b6fd4"/>
+      <path d="M140 338 Q96 338 118 300" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round" marker-end="url(#afw)"/>
 
       <!-- Stable Floor → Trade -->
-      <path d="M62 268 Q50 160 155 50" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <polygon points="152,53 158,42 164,53" fill="#3b6fd4"/>
+      <path d="M62 268 Q46 158 157 58" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round" marker-end="url(#afw)"/>
 
       <!-- Center label -->
       <circle cx="210" cy="190" r="46" stroke="#3b6fd4" stroke-width="2" stroke-dasharray="6 3" fill="rgba(59,111,212,0.06)"/>
