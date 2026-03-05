@@ -892,8 +892,8 @@
   </h1>
 
   <p class="hero-subtitle">
-    A self-sustaining fee engine — trades feed the system,
-    buybacks protect the floor, and deeper liquidity compounds itself.
+    A self-sustaining fee engine — every trade generates fees,
+    100% goes directly into the LP, and deeper liquidity compounds itself.
   </p>
 
   <div class="hero-actions">
@@ -919,7 +919,7 @@
     <!-- Step labels -->
     <text x="40" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Trade</text>
     <text x="145" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Capture</text>
-    <text x="255" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Split</text>
+    <text x="243" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">100% LP</text>
     <text x="360" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Deepen LP</text>
     <text x="476" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Floor</text>
 
@@ -942,13 +942,10 @@
     <line x1="174" y1="88" x2="174" y2="82" stroke="#3b6fd4" stroke-width="3" stroke-linecap="round"/>
     <text x="158" y="118" font-family="Caveat,cursive" font-size="11" fill="#1a1a1a" opacity="0.6" text-anchor="middle">auto-lock</text>
 
-    <!-- Node 3: Split -->
+    <!-- Node 3: 100% LP -->
     <rect x="228" y="72" width="74" height="56" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
-    <line x1="265" y1="80" x2="265" y2="120" stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.4"/>
-    <text x="246" y="102" font-family="Caveat Brush,cursive" font-size="14" fill="#3b6fd4">50%</text>
-    <text x="246" y="116" font-family="Caveat,cursive" font-size="10" fill="#1a1a1a" opacity="0.5">buyback</text>
-    <text x="270" y="102" font-family="Caveat Brush,cursive" font-size="14" fill="#1a1a1a" opacity="0.7">50%</text>
-    <text x="270" y="116" font-family="Caveat,cursive" font-size="10" fill="#1a1a1a" opacity="0.5">LP</text>
+    <text x="265" y="98" font-family="Caveat Brush,cursive" font-size="17" fill="#3b6fd4" text-anchor="middle">100%</text>
+    <text x="265" y="114" font-family="Caveat,cursive" font-size="11" fill="#1a1a1a" opacity="0.6" text-anchor="middle">into LP</text>
 
     <!-- Node 4: Deepen LP -->
     <rect x="336" y="72" width="78" height="56" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
@@ -989,7 +986,7 @@
     <div class="powered-by-content">
       <div class="powered-by-tagline">The liquidity infrastructure<br>built for token longevity</div>
       <p class="powered-by-desc">
-        Bootstrap is the on-chain engine underneath Self Runner. It intercepts trading fees at the protocol level — before they can leave — and routes them automatically into buybacks and liquidity depth. No multisig. No team wallet. No intervention required.
+        Bootstrap is the on-chain engine underneath Self Runner. It intercepts trading fees at the protocol level — before they can leave — and routes 100% of them directly into LP depth. No split. No multisig. No team wallet. No intervention required.
       </p>
       <div class="powered-by-pills">
         <span class="powered-by-pill blue">Autonomous fee routing</span>
@@ -1041,14 +1038,12 @@
     <div class="how-step" data-delay="160">
       <span class="step-num">03</span>
       <svg class="step-icon" viewBox="0 0 40 40" fill="none">
-        <line x1="20" y1="6" x2="20" y2="34" stroke="#1a1a1a" stroke-width="1.8" stroke-dasharray="3 2" opacity="0.4"/>
-        <text x="4" y="24" font-family="Caveat Brush,cursive" font-size="13" fill="#3b6fd4">50%</text>
-        <text x="22" y="24" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.7">50%</text>
-        <path d="M10 30 L4 36" stroke="#3b6fd4" stroke-width="1.8" stroke-linecap="round"/>
-        <path d="M30 30 L36 36" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" opacity="0.5"/>
+        <text x="20" y="18" font-family="Caveat Brush,cursive" font-size="16" fill="#3b6fd4" text-anchor="middle">100%</text>
+        <path d="M20 22 L20 32" stroke="#3b6fd4" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M13 28 L20 35 L27 28" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       </svg>
-      <div class="step-title">Fees Split</div>
-      <div class="step-desc">Half goes to buybacks. Half deepens the LP. The split is fixed and automatic.</div>
+      <div class="step-title">100% to LP</div>
+      <div class="step-desc">Every captured fee goes directly into the liquidity pool. No split, no diversion — 100% deepens the LP.</div>
     </div>
 
     <!-- Step 4 -->
@@ -1118,10 +1113,10 @@
       <text x="364" y="150" font-family="Caveat Brush,cursive" font-size="14" fill="#1a1a1a" text-anchor="middle">Capture</text>
       <text x="364" y="166" font-family="Caveat,cursive" font-size="11" fill="#3b6fd4" text-anchor="middle">auto-locked</text>
 
-      <!-- Split -->
+      <!-- 100% LP -->
       <rect x="298" y="268" width="100" height="48" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
-      <text x="348" y="290" font-family="Caveat Brush,cursive" font-size="14" fill="#1a1a1a" text-anchor="middle">Split</text>
-      <text x="348" y="306" font-family="Caveat,cursive" font-size="11" fill="#3b6fd4" text-anchor="middle">buyback + LP</text>
+      <text x="348" y="290" font-family="Caveat Brush,cursive" font-size="14" fill="#1a1a1a" text-anchor="middle">100% LP</text>
+      <text x="348" y="306" font-family="Caveat,cursive" font-size="11" fill="#3b6fd4" text-anchor="middle">all fees → LP</text>
 
       <!-- Deeper LP -->
       <rect x="140" y="314" width="110" height="48" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
@@ -1170,15 +1165,15 @@
       <div class="flywheel-item" data-delay="80">
         <div class="flywheel-dot"></div>
         <div>
-          <div class="flywheel-item-title">Buybacks compress supply</div>
-          <div class="flywheel-item-desc">Half the fees buy back $SRUN from the market, removing supply on every trade.</div>
+          <div class="flywheel-item-title">100% of fees go to LP</div>
+          <div class="flywheel-item-desc">No split, no diversion. Every fee captured goes entirely into deepening the liquidity pool.</div>
         </div>
       </div>
       <div class="flywheel-item" data-delay="160">
         <div class="flywheel-dot"></div>
         <div>
           <div class="flywheel-item-title">LP compounds depth</div>
-          <div class="flywheel-item-desc">The other half deepens liquidity, tightening spreads and hardening the price floor.</div>
+          <div class="flywheel-item-desc">Fees compound into liquidity depth on every trade — tightening spreads and hardening the price floor.</div>
         </div>
       </div>
       <div class="flywheel-item" data-delay="240">
@@ -1220,14 +1215,14 @@
         <div class="feed-stat-change" id="stat-change">+$0 today</div>
       </div>
       <div class="feed-stat">
-        <div class="feed-stat-label">Buybacks Executed</div>
-        <div class="feed-stat-value" id="stat-buybacks">0</div>
-        <div class="feed-stat-change" id="stat-buyback-usd">$0 removed</div>
+        <div class="feed-stat-label">LP Depth Added</div>
+        <div class="feed-stat-value blue" id="stat-lp">$0</div>
+        <div class="feed-stat-change">100% of all fees</div>
       </div>
       <div class="feed-stat">
-        <div class="feed-stat-label">LP Depth Added</div>
-        <div class="feed-stat-value" id="stat-lp">$0</div>
-        <div class="feed-stat-change" id="stat-lp-change">this session</div>
+        <div class="feed-stat-label">Fee → LP Events</div>
+        <div class="feed-stat-value" id="stat-buybacks">0</div>
+        <div class="feed-stat-change">this session</div>
       </div>
     </div>
 
@@ -1238,22 +1233,16 @@
       </div>
     </div>
 
-    <!-- Split visualization -->
+    <!-- LP visualization -->
     <div class="split-bar-visual">
-      <div class="split-bar-fill" id="split-bar" style="width:50%"></div>
-      <div class="split-bar-fill-2" style="flex:1"></div>
+      <div class="split-bar-fill" style="width:100%; border-radius:6px;"></div>
     </div>
 
     <div class="split-bar">
-      <div class="split-half">
-        <div class="split-half-label">Buyback Pool</div>
-        <div class="split-half-value" id="split-buyback-val">$0</div>
-        <div class="split-half-desc">Buying $SRUN from the open market, reducing circulating supply.</div>
-      </div>
-      <div class="split-half">
-        <div class="split-half-label">LP Depth Pool</div>
-        <div class="split-half-value" id="split-lp-val">$0</div>
-        <div class="split-half-desc">Added as liquidity — wider range, tighter floor, more stable price.</div>
+      <div class="split-half" style="flex:1; border-right:none;">
+        <div class="split-half-label">LP Depth Pool — <strong>100% of all fees</strong></div>
+        <div class="split-half-value blue" id="split-lp-val">$0</div>
+        <div class="split-half-desc">Every fee captured goes entirely into the liquidity pool — no split, no buyback diversion. Deeper LP means tighter spreads, a harder floor, and more stable price action.</div>
       </div>
     </div>
   </div>
@@ -1311,14 +1300,14 @@ document.querySelectorAll('.how-step, .flywheel-item').forEach(el => observer.ob
 
 /* ── Live Fee Feed Simulation ──────────────── */
 const eventTypes = [
-  { type: 'Buyback', icon: '↩', color: '#3b6fd4' },
-  { type: 'LP Added', icon: '⬆', color: '#1a1a1a' },
+  { type: 'LP Added', icon: '⬆', color: '#3b6fd4' },
   { type: 'Fee Captured', icon: '✦', color: '#3b6fd4' },
-  { type: 'Buyback', icon: '↩', color: '#3b6fd4' },
-  { type: 'LP Added', icon: '⬆', color: '#1a1a1a' },
+  { type: 'LP Added', icon: '⬆', color: '#3b6fd4' },
+  { type: 'Fee → LP', icon: '→', color: '#3b6fd4' },
+  { type: 'LP Added', icon: '⬆', color: '#3b6fd4' },
 ];
 
-let totalFees = 0, totalBuybacks = 0, buybackCount = 0, lpAdded = 0, todayFees = 0;
+let totalFees = 0, buybackCount = 0, lpAdded = 0, todayFees = 0;
 
 function randBetween(a, b) { return Math.random() * (b - a) + a; }
 
@@ -1355,9 +1344,7 @@ function updateStats() {
   document.getElementById('stat-total').textContent = formatUSD(totalFees);
   document.getElementById('stat-change').textContent = '+' + formatUSD(todayFees) + ' today';
   document.getElementById('stat-buybacks').textContent = buybackCount;
-  document.getElementById('stat-buyback-usd').textContent = formatUSD(totalBuybacks) + ' removed';
   document.getElementById('stat-lp').textContent = formatUSD(lpAdded);
-  document.getElementById('split-buyback-val').textContent = formatUSD(totalBuybacks);
   document.getElementById('split-lp-val').textContent = formatUSD(lpAdded);
 }
 
@@ -1365,20 +1352,10 @@ function tick() {
   const fee = randBetween(12, 340);
   totalFees += fee;
   todayFees += fee;
+  lpAdded += fee;
+  buybackCount++;
 
-  const half = fee / 2;
-  totalBuybacks += half;
-  lpAdded += half;
-
-  const buybackEv = eventTypes[Math.floor(Math.random() * 2)];
-  const isBuyback = Math.random() > 0.4;
-
-  if (isBuyback) {
-    buybackCount++;
-    addFeedItem({ type: 'Buyback', icon: '↩', color: '#3b6fd4' }, half);
-  } else {
-    addFeedItem({ type: 'LP Added', icon: '⬆', color: '#1a1a1a' }, half);
-  }
+  addFeedItem({ type: 'LP Added', icon: '⬆', color: '#3b6fd4' }, fee);
 
   // Occasionally show fee capture event too
   if (Math.random() > 0.6) {

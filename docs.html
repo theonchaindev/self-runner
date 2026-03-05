@@ -472,8 +472,6 @@
     <div class="sidebar-section">
       <div class="sidebar-heading">Core Mechanics</div>
       <a href="#fee-capture" class="sidebar-link">Fee Capture</a>
-      <a href="#fee-split" class="sidebar-link">Fee Split</a>
-      <a href="#buyback" class="sidebar-link">Buyback Engine</a>
       <a href="#lp-depth" class="sidebar-link">LP Depth</a>
     </div>
     <div class="sidebar-section">
@@ -500,7 +498,7 @@
 
     <div class="page-title">Technical Documentation</div>
     <p class="page-subtitle">
-      Everything you need to understand how Self Runner works at a protocol level — fee capture, routing, buybacks, LP mechanics, and the Bootstrap infrastructure beneath it all.
+      Everything you need to understand how Self Runner works at a protocol level — fee capture, LP routing, and the Bootstrap infrastructure beneath it all.
     </p>
 
     <!-- Overview -->
@@ -509,7 +507,7 @@
       <div class="doc-section-title">Overview</div>
 
       <p>
-        Self Runner is an autonomous on-chain fee engine built on top of the <strong>Bootstrap liquidity protocol</strong>. Every trade that occurs against the Self Runner liquidity pool generates fees. Those fees are captured at the protocol level — before they can be distributed — and automatically recycled into two mechanisms: buybacks and LP depth.
+        Self Runner is an autonomous on-chain fee engine built on top of the <strong>Bootstrap liquidity protocol</strong>. Every trade that occurs against the Self Runner liquidity pool generates fees. Those fees are captured at the protocol level — before they can be distributed — and automatically routed 100% into LP depth.
       </p>
       <p>
         The result is a system that compounds on itself. More trades → more fees → deeper liquidity and supply compression → more stable floor → more trades.
@@ -517,7 +515,7 @@
 
       <div class="callout blue">
         <div class="callout-title">&#x2139; No manual intervention</div>
-        All fee routing, buyback execution, and LP additions happen autonomously via Bootstrap's on-chain infrastructure. There is no admin key, no multisig, and no team wallet in the fee flow.
+        All fee routing and LP additions happen autonomously via Bootstrap's on-chain infrastructure. There is no admin key, no multisig, and no team wallet in the fee flow.
       </div>
 
       <h3>Design Goals</h3>
@@ -525,7 +523,7 @@
         <li><strong>Self-sustaining:</strong> The system requires no external capital injection after launch. Fees from trading provide all the fuel.</li>
         <li><strong>Non-extractable:</strong> Fees captured by Bootstrap cannot be redirected to team wallets or external addresses. The routing is fixed at the contract level.</li>
         <li><strong>Compounding:</strong> Each cycle deepens liquidity, which reduces slippage, which attracts more volume, which generates more fees.</li>
-        <li><strong>Transparent:</strong> All fee flows, buyback events, and LP additions are visible on-chain and reflected in the live fee feed.</li>
+        <li><strong>Transparent:</strong> All fee flows and LP additions are visible on-chain and reflected in the live fee feed.</li>
       </ul>
     </div>
 
@@ -535,7 +533,7 @@
       <div class="doc-section-title">Architecture</div>
 
       <p>
-        The system consists of four interacting layers: the AMM pool, the Bootstrap fee interceptor, the split router, and the execution layer (buyback + LP).
+        The system consists of three interacting layers: the AMM pool, the Bootstrap fee interceptor, and the LP depth router.
       </p>
 
       <pre><code><span class="c">┌─────────────────────────────────────────────────┐</span>
@@ -547,14 +545,14 @@
 <span class="c">┌─────────────────────────────────────────────────┐</span>
 <span class="c">│           Bootstrap Fee Interceptor             │</span>
 <span class="c">│    captures fees before any distribution        │</span>
-<span class="c">└──────────┬──────────────────────────┬───────────┘</span>
-           <span class="c">│ 50%                      │ 50%</span>
-           ▼                          ▼
-<span class="c">┌──────────────────┐      ┌───────────────────────┐</span>
-<span class="c">│  Buyback Engine  │      │     LP Depth Router   │</span>
-<span class="c">│  buys $SRUN and  │      │  adds paired liquidity │</span>
-<span class="c">│  burns / locks   │      │  to the pool range     │</span>
-<span class="c">└──────────────────┘      └───────────────────────┘</span></code></pre>
+<span class="c">└────────────────────┬────────────────────────────┘</span>
+                     <span class="c">│ 100% of fees</span>
+                     ▼
+<span class="c">┌─────────────────────────────────────────────────┐</span>
+<span class="c">│              LP Depth Router                    │</span>
+<span class="c">│  adds paired liquidity to the pool range        │</span>
+<span class="c">│  deepening the LP on every single trade         │</span>
+<span class="c">└─────────────────────────────────────────────────┘</span></code></pre>
 
       <h3>Component Summary</h3>
       <div class="doc-table-wrap">
@@ -563,9 +561,7 @@
           <tbody>
             <tr><td><code>AMM Pool</code></td><td>Handles all $SRUN swaps, generates swap fees on every trade</td><td>Permissionless</td></tr>
             <tr><td><code>Bootstrap Interceptor</code></td><td>Hooks into fee distribution, captures before payout</td><td>Bootstrap Protocol</td></tr>
-            <tr><td><code>Split Router</code></td><td>Divides captured fees 50/50 to buyback and LP targets</td><td>Immutable contract</td></tr>
-            <tr><td><code>Buyback Engine</code></td><td>Market-buys $SRUN using fee allocation, removes supply</td><td>Bootstrap Protocol</td></tr>
-            <tr><td><code>LP Router</code></td><td>Pairs fee allocation with matching token and adds to pool</td><td>Bootstrap Protocol</td></tr>
+            <tr><td><code>LP Router</code></td><td>Routes 100% of captured fees into LP depth — pairs and mints liquidity positions</td><td>Bootstrap Protocol</td></tr>
           </tbody>
         </table>
       </div>
@@ -599,96 +595,15 @@
 
       <div class="callout green">
         <div class="callout-title">&#x2713; Zero leakage</div>
-        Once fees enter the FeeVault, the only exit is through the Split Router. There is no admin function, no emergency withdrawal, and no upgradeable proxy that could redirect the flow.
+        Once fees enter the FeeVault, the only exit is through the LP Router. There is no admin function, no emergency withdrawal, and no upgradeable proxy that could redirect the flow.
       </div>
 
       <h3>Trigger conditions</h3>
       <p>
-        Fee routing can be triggered by anyone calling <code>routeToSplit()</code> on the vault — it is a public, permissionless function. In practice, Bootstrap's off-chain keeper calls it automatically after a configurable fee accumulation threshold is reached.
+        Fee routing can be triggered by anyone calling <code>routeToLP()</code> on the vault — it is a public, permissionless function. In practice, Bootstrap's off-chain keeper calls it automatically after a configurable fee accumulation threshold is reached.
       </p>
     </div>
 
-    <!-- Fee Split -->
-    <div class="doc-section" id="fee-split">
-      <div class="doc-section-label">Core Mechanics</div>
-      <div class="doc-section-title">Fee Split</div>
-
-      <p>
-        All captured fees are split equally between two destinations. The ratio is fixed in the Split Router contract and cannot be changed post-deployment.
-      </p>
-
-      <div class="doc-table-wrap">
-        <table class="doc-table">
-          <thead><tr><th>Destination</th><th>Allocation</th><th>Purpose</th></tr></thead>
-          <tbody>
-            <tr><td>Buyback Engine</td><td><strong>50%</strong></td><td>Market-buy $SRUN, remove from circulation</td></tr>
-            <tr><td>LP Depth Router</td><td><strong>50%</strong></td><td>Add paired liquidity to deepen the pool</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="callout">
-        <div class="callout-title">&#x26A0; Immutable ratio</div>
-        The 50/50 split is encoded directly in the Split Router bytecode. There is no setter function, no governance vote, and no timelock that could alter this ratio. What you see on deployment is what runs forever.
-      </div>
-    </div>
-
-    <!-- Buyback -->
-    <div class="doc-section" id="buyback">
-      <div class="doc-section-label">Core Mechanics</div>
-      <div class="doc-section-title">Buyback Engine</div>
-
-      <p>
-        The Buyback Engine receives its 50% fee allocation and executes a market purchase of $SRUN through the same AMM pool. Purchased tokens are either permanently locked or burned — they never re-enter circulation.
-      </p>
-
-      <h3>Execution flow</h3>
-      <div class="flow-steps">
-        <div class="flow-step">
-          <div class="flow-num">1</div>
-          <div class="flow-body">
-            <div class="flow-title">Fee allocation received</div>
-            <p class="flow-desc">Split Router sends 50% of accumulated fees (denominated in the pool's quote token) to the Buyback Engine contract.</p>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-num">2</div>
-          <div class="flow-body">
-            <div class="flow-title">Swap executed</div>
-            <p class="flow-desc">The engine calls <code>exactInputSingle</code> on the AMM router, swapping the quote token for $SRUN at market price.</p>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-num">3</div>
-          <div class="flow-body">
-            <div class="flow-title">Supply removed</div>
-            <p class="flow-desc">Acquired $SRUN is sent to the dead address (<code>0x000...dEaD</code>), permanently removing it from circulating supply.</p>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-num">4</div>
-          <div class="flow-body">
-            <div class="flow-title">Event emitted</div>
-            <p class="flow-desc">A <code>BuybackExecuted</code> event is emitted with the amount of $SRUN purchased and the effective price, visible in the live fee feed.</p>
-          </div>
-        </div>
-      </div>
-
-      <h3>Price impact mitigation</h3>
-      <p>
-        Buybacks are size-limited per execution. If accumulated fees would cause more than a configured price impact threshold, the execution is split across multiple smaller swaps over successive blocks. This prevents the buyback mechanism itself from causing excessive volatility.
-      </p>
-
-      <pre><code><span class="c">// Buyback size check (simplified)</span>
-<span class="k">uint256</span> <span class="n">maxBuybackPerExecution =</span>
-  <span class="n">poolLiquidity * MAX_IMPACT_BPS / </span><span class="s">10_000</span><span class="n">;</span>
-
-<span class="k">if</span> <span class="n">(allocationAmount > maxBuybackPerExecution) {</span>
-  <span class="c">// Queue remainder for next trigger</span>
-  <span class="n">pendingBuyback += allocationAmount - maxBuybackPerExecution;</span>
-  <span class="n">allocationAmount = maxBuybackPerExecution;</span>
-<span class="n">}</span></code></pre>
-    </div>
 
     <!-- LP Depth -->
     <div class="doc-section" id="lp-depth">
@@ -696,8 +611,13 @@
       <div class="doc-section-title">LP Depth</div>
 
       <p>
-        The LP Depth Router receives the other 50% of fees and adds it back into the pool as concentrated liquidity. This progressively deepens the pool, tightening spreads and reducing price impact for all traders.
+        The LP Depth Router receives <strong>100% of all captured fees</strong> and adds them back into the pool as concentrated liquidity. This progressively deepens the pool, tightening spreads and reducing price impact for all traders.
       </p>
+
+      <div class="callout blue">
+        <div class="callout-title">&#x2139; No split — 100% to LP</div>
+        There is no buyback diversion. Every fee captured goes entirely to deepening liquidity. The routing is fixed at the contract level and cannot be changed.
+      </div>
 
       <h3>How liquidity is added</h3>
       <p>
@@ -705,9 +625,10 @@
       </p>
 
       <pre><code><span class="c">// LP addition logic (simplified)</span>
+<span class="c">// 100% of allocation goes to LP — no split</span>
 <span class="k">uint256</span> <span class="n">halfFees = allocation / </span><span class="s">2</span><span class="n">;</span>
 
-<span class="c">// Buy $SRUN with half</span>
+<span class="c">// Buy $SRUN with half to create a balanced pair</span>
 <span class="k">uint256</span> <span class="n">srunAcquired = swap(quoteToken, srun, halfFees);</span>
 
 <span class="c">// Add paired liquidity around current tick</span>
@@ -747,8 +668,7 @@
           <thead><tr><th>Bootstrap Primitive</th><th>Used by Self Runner for</th></tr></thead>
           <tbody>
             <tr><td><code>FeeVault</code></td><td>Capturing and holding all trading fees from the $SRUN pool</td></tr>
-            <tr><td><code>SplitRouter</code></td><td>Fixed 50/50 routing of fees to buyback and LP targets</td></tr>
-            <tr><td><code>BuybackExecutor</code></td><td>Autonomous market-buy and supply removal of $SRUN</td></tr>
+            <tr><td><code>LPRouter</code></td><td>Routes 100% of captured fees into LP depth additions</td></tr>
             <tr><td><code>LPManager</code></td><td>Concentrated liquidity additions to the $SRUN pool</td></tr>
             <tr><td><code>Keeper</code></td><td>Off-chain trigger for fee routing at accumulation thresholds</td></tr>
           </tbody>
@@ -815,17 +735,17 @@
 
       <h3>No admin withdrawal</h3>
       <p>
-        The <code>FeeVault</code> has no <code>withdraw()</code>, <code>emergencyExit()</code>, or equivalent function. The only way fees can leave the vault is through <code>routeToSplit()</code>, which sends them directly to the immutable split contracts.
+        The <code>FeeVault</code> has no <code>withdraw()</code>, <code>emergencyExit()</code>, or equivalent function. The only way fees can leave the vault is through <code>routeToLP()</code>, which sends them directly to the immutable LP router contract.
       </p>
 
       <h3>No upgradeable proxies</h3>
       <p>
-        Bootstrap's core contracts (FeeVault, SplitRouter, BuybackExecutor, LPManager) are deployed as non-upgradeable implementations. There is no <code>upgradeTo()</code> function, no proxy admin, and no way to change the contract logic post-deployment.
+        Bootstrap's core contracts (FeeVault, LPRouter, LPManager) are deployed as non-upgradeable implementations. There is no <code>upgradeTo()</code> function, no proxy admin, and no way to change the contract logic post-deployment.
       </p>
 
       <h3>No owner privileges on fee flow</h3>
       <p>
-        The deployer of Self Runner has no special privileges over the fee routing. They cannot pause routing, redirect allocations, or change the split ratio. The only deployer control is over non-fee parameters like UI metadata.
+        The deployer of Self Runner has no special privileges over the fee routing. They cannot pause routing, redirect allocations, or change where fees go. The only deployer control is over non-fee parameters like UI metadata.
       </p>
 
       <div class="callout green">
@@ -874,12 +794,7 @@
       <div class="doc-section-title">Floor Mechanics</div>
 
       <p>
-        The "floor" in Self Runner refers to the effective price support created by two compounding forces: supply compression from buybacks, and liquidity depth from LP additions.
-      </p>
-
-      <h3>Supply pressure</h3>
-      <p>
-        Every buyback removes $SRUN from the market permanently. With a fixed total supply and a continuously decreasing circulating supply, the effective market cap at any given price increases over time. This creates a ratcheting effect — each buyback makes the next buyback more impactful per dollar spent.
+        The "floor" in Self Runner refers to the effective price support created by one compounding force: continuously deepening LP from 100% fee routing. Every single fee captured makes the pool harder to move.
       </p>
 
       <h3>Liquidity depth</h3>
@@ -887,12 +802,11 @@
         As protocol-owned LP grows, the pool becomes more resistant to price impact from individual trades. A deep pool means a seller must move significantly more volume to push the price down by a given percentage. This translates directly to a more stable price floor.
       </p>
 
-      <h3>Combined effect</h3>
+      <h3>Compounding effect</h3>
       <pre><code><span class="c">// Simplified floor strength model</span>
 
-<span class="c">// As cycles progress:</span>
-<span class="n">circulatingSupply -= buybackAmount;      </span><span class="c">// each cycle</span>
-<span class="n">poolLiquidity     += lpAdditionAmount;   </span><span class="c">// each cycle</span>
+<span class="c">// As cycles progress — 100% of fees go to LP:</span>
+<span class="n">poolLiquidity += allFeeAmount;           </span><span class="c">// each cycle</span>
 
 <span class="c">// Price impact per unit of sell pressure:</span>
 <span class="n">priceImpact = sellAmount / poolLiquidity;</span>
@@ -988,7 +902,7 @@
 
       <h3>What happens if no one trades?</h3>
       <p>
-        If trading volume drops to zero, no new fees are generated and the flywheel stops adding fuel. However, the existing protocol-owned liquidity and buybacks that have already executed remain. Supply is still compressed and LP is still deep — the floor doesn't unwind.
+        If trading volume drops to zero, no new fees are generated and the flywheel stops adding fuel. However, the existing protocol-owned liquidity that has already been added remains. LP is still deep — the floor doesn't unwind.
       </p>
 
       <h3>Can the LP be removed?</h3>
