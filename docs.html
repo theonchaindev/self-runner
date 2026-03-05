@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Self Runner — Technical Docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Caveat+Brush&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --paper: #f4f0e8;
+    --paper-dark: #e8e2d4;
+    --ink: #1a1a1a;
+    --ink-light: #3a3530;
+    --ink-faint: rgba(26,26,26,0.35);
+    --blue: #3b6fd4;
+    --blue-faint: rgba(59,111,212,0.1);
+    --green: #2e7d32;
+    --font: 'Caveat', cursive;
+    --font-brush: 'Caveat Brush', cursive;
+    --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ─── Nav ─────────────────────────── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 40px;
+    background: rgba(244,240,232,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1.5px solid rgba(26,26,26,0.12);
+  }
+
+  .nav-logo {
+    font-family: var(--font-brush);
+    font-size: 1.4rem;
+    color: var(--ink);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-logo span { color: var(--blue); }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .nav-right a {
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink-light);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .nav-right a:hover { color: var(--blue); }
+
+  .nav-right a.active { color: var(--blue); }
+
+  /* ─── Layout ──────────────────────── */
+  .docs-layout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+    padding-top: 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ─── Sidebar ─────────────────────── */
+  .sidebar {
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    padding: 40px 24px 40px 0;
+    border-right: 1.5px solid rgba(26,26,26,0.12);
+    scrollbar-width: thin;
+  }
+
+  .sidebar-section {
+    margin-bottom: 32px;
+  }
+
+  .sidebar-heading {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+    padding-left: 12px;
+  }
+
+  .sidebar-link {
+    display: block;
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink-light);
+    text-decoration: none;
+    padding: 5px 12px;
+    border-radius: 4px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+
+  .sidebar-link:hover {
+    color: var(--blue);
+    background: var(--blue-faint);
+    border-left-color: var(--blue);
+  }
+
+  .sidebar-link.active {
+    color: var(--blue);
+    background: var(--blue-faint);
+    border-left-color: var(--blue);
+  }
+
+  /* ─── Content ─────────────────────── */
+  .docs-content {
+    padding: 48px 48px 100px 52px;
+    max-width: 780px;
+  }
+
+  .docs-content > * + * { margin-top: 0; }
+
+  /* ─── Page title ──────────────────── */
+  .page-title {
+    font-family: var(--font-brush);
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .page-subtitle {
+    font-size: 1.15rem;
+    color: var(--ink-light);
+    line-height: 1.6;
+    margin-bottom: 48px;
+    max-width: 560px;
+  }
+
+  /* ─── Doc sections ────────────────── */
+  .doc-section {
+    margin-bottom: 64px;
+    scroll-margin-top: 80px;
+  }
+
+  .doc-section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+
+  .doc-section-title {
+    font-family: var(--font-brush);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: var(--ink);
+    margin-bottom: 20px;
+    line-height: 1.1;
+  }
+
+  .doc-section-title::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0, var(--ink) 6px, transparent 6px, transparent 12px);
+    opacity: 0.12;
+    margin-top: 10px;
+  }
+
+  p {
+    font-size: 1.08rem;
+    color: var(--ink-light);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  /* ─── Sub headings ────────────────── */
+  h3 {
+    font-family: var(--font);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 28px 0 10px;
+  }
+
+  h4 {
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 20px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.7;
+  }
+
+  /* ─── Code blocks ─────────────────── */
+  pre {
+    background: var(--ink);
+    color: #e8e2d4;
+    border-radius: 6px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    line-height: 1.7;
+    margin: 16px 0 24px;
+    box-shadow: 4px 4px 0 rgba(26,26,26,0.2);
+    position: relative;
+  }
+
+  pre .c { color: #6fa3f7; } /* comment / keyword */
+  pre .s { color: #87d96b; } /* string / value */
+  pre .k { color: #f7a76f; } /* type */
+  pre .n { color: #e8e2d4; } /* normal */
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: rgba(59,111,212,0.1);
+    color: var(--blue);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  /* ─── Info / callout boxes ────────── */
+  .callout {
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 20px 0;
+    box-shadow: 4px 4px 0 var(--ink);
+    background: var(--paper-dark);
+    font-size: 1rem;
+    color: var(--ink-light);
+    line-height: 1.6;
+  }
+
+  .callout-title {
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .callout.blue {
+    border-color: var(--blue);
+    box-shadow: 4px 4px 0 rgba(59,111,212,0.25);
+    background: var(--blue-faint);
+  }
+
+  .callout.blue .callout-title { color: var(--blue); }
+
+  .callout.green {
+    border-color: var(--green);
+    box-shadow: 4px 4px 0 rgba(46,125,50,0.2);
+    background: rgba(46,125,50,0.06);
+  }
+
+  .callout.green .callout-title { color: var(--green); }
+
+  /* ─── Tables ──────────────────────── */
+  .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 28px;
+    font-size: 1rem;
+  }
+
+  .doc-table th {
+    font-weight: 700;
+    text-align: left;
+    padding: 10px 16px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .doc-table th:first-child { border-radius: 6px 0 0 0; }
+  .doc-table th:last-child { border-radius: 0 6px 0 0; }
+
+  .doc-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(26,26,26,0.1);
+    color: var(--ink-light);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .doc-table tr:last-child td { border-bottom: none; }
+  .doc-table tr:nth-child(even) td { background: rgba(26,26,26,0.03); }
+
+  .doc-table-wrap {
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 4px 4px 0 var(--ink);
+    margin: 16px 0 28px;
+  }
+
+  /* ─── Flow diagram ────────────────── */
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 24px 0;
+  }
+
+  .flow-step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    bottom: -24px;
+    width: 2px;
+    background: repeating-linear-gradient(180deg, var(--blue) 0, var(--blue) 6px, transparent 6px, transparent 12px);
+    opacity: 0.4;
+  }
+
+  .flow-step + .flow-step { padding-top: 24px; }
+
+  .flow-num {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: var(--paper);
+    font-family: var(--font-brush);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 2px solid var(--ink);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+
+  .flow-body { flex: 1; padding-top: 4px; }
+
+  .flow-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .flow-desc {
+    font-size: 1rem;
+    color: var(--ink-light);
+    line-height: 1.5;
+    margin-bottom: 0;
+  }
+
+  /* ─── Tags ────────────────────────── */
+  .tag {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 100px;
+    padding: 2px 10px;
+    margin-right: 4px;
+  }
+
+  .tag-blue { background: var(--blue-faint); color: var(--blue); border: 1px solid var(--blue); }
+  .tag-green { background: rgba(46,125,50,0.08); color: var(--green); border: 1px solid var(--green); }
+  .tag-ink { background: rgba(26,26,26,0.06); color: var(--ink); border: 1px solid rgba(26,26,26,0.3); }
+
+  /* ─── Lists ───────────────────────── */
+  ul.doc-list, ol.doc-list {
+    padding-left: 24px;
+    margin: 12px 0 20px;
+  }
+
+  ul.doc-list li, ol.doc-list li {
+    font-size: 1.05rem;
+    color: var(--ink-light);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  ul.doc-list li::marker { color: var(--blue); }
+
+  /* ─── Responsive ──────────────────── */
+  @media (max-width: 768px) {
+    .docs-layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .docs-content { padding: 32px 20px 80px; }
+    nav { padding: 14px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Self Runner <span>·</span> Docs</a>
+  <div class="nav-right">
+    <a href="index.html">Home</a>
+    <a href="https://x.com/i/communities/2029489835673547245" target="_blank">X Community</a>
+    <a href="https://www.bootstrapliq.fun/" target="_blank">Bootstrap</a>
+  </div>
+</nav>
+
+<div class="docs-layout">
+
+  <!-- ─── Sidebar ──────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Getting Started</div>
+      <a href="#overview" class="sidebar-link active">Overview</a>
+      <a href="#architecture" class="sidebar-link">Architecture</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Core Mechanics</div>
+      <a href="#fee-capture" class="sidebar-link">Fee Capture</a>
+      <a href="#fee-split" class="sidebar-link">Fee Split</a>
+      <a href="#buyback" class="sidebar-link">Buyback Engine</a>
+      <a href="#lp-depth" class="sidebar-link">LP Depth</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Bootstrap Protocol</div>
+      <a href="#bootstrap" class="sidebar-link">What is Bootstrap</a>
+      <a href="#bootstrap-routing" class="sidebar-link">Fee Routing</a>
+      <a href="#bootstrap-security" class="sidebar-link">Security Model</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Token</div>
+      <a href="#token" class="sidebar-link">$SRUN Token</a>
+      <a href="#floor" class="sidebar-link">Floor Mechanics</a>
+      <a href="#flywheel" class="sidebar-link">Flywheel Loop</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Reference</div>
+      <a href="#parameters" class="sidebar-link">Parameters</a>
+      <a href="#faq" class="sidebar-link">FAQ</a>
+    </div>
+  </aside>
+
+  <!-- ─── Content ──────────────────── -->
+  <main class="docs-content">
+
+    <div class="page-title">Technical Documentation</div>
+    <p class="page-subtitle">
+      Everything you need to understand how Self Runner works at a protocol level — fee capture, routing, buybacks, LP mechanics, and the Bootstrap infrastructure beneath it all.
+    </p>
+
+    <!-- Overview -->
+    <div class="doc-section" id="overview">
+      <div class="doc-section-label">Introduction</div>
+      <div class="doc-section-title">Overview</div>
+
+      <p>
+        Self Runner is an autonomous on-chain fee engine built on top of the <strong>Bootstrap liquidity protocol</strong>. Every trade that occurs against the Self Runner liquidity pool generates fees. Those fees are captured at the protocol level — before they can be distributed — and automatically recycled into two mechanisms: buybacks and LP depth.
+      </p>
+      <p>
+        The result is a system that compounds on itself. More trades → more fees → deeper liquidity and supply compression → more stable floor → more trades.
+      </p>
+
+      <div class="callout blue">
+        <div class="callout-title">&#x2139; No manual intervention</div>
+        All fee routing, buyback execution, and LP additions happen autonomously via Bootstrap's on-chain infrastructure. There is no admin key, no multisig, and no team wallet in the fee flow.
+      </div>
+
+      <h3>Design Goals</h3>
+      <ul class="doc-list">
+        <li><strong>Self-sustaining:</strong> The system requires no external capital injection after launch. Fees from trading provide all the fuel.</li>
+        <li><strong>Non-extractable:</strong> Fees captured by Bootstrap cannot be redirected to team wallets or external addresses. The routing is fixed at the contract level.</li>
+        <li><strong>Compounding:</strong> Each cycle deepens liquidity, which reduces slippage, which attracts more volume, which generates more fees.</li>
+        <li><strong>Transparent:</strong> All fee flows, buyback events, and LP additions are visible on-chain and reflected in the live fee feed.</li>
+      </ul>
+    </div>
+
+    <!-- Architecture -->
+    <div class="doc-section" id="architecture">
+      <div class="doc-section-label">System Design</div>
+      <div class="doc-section-title">Architecture</div>
+
+      <p>
+        The system consists of four interacting layers: the AMM pool, the Bootstrap fee interceptor, the split router, and the execution layer (buyback + LP).
+      </p>
+
+      <pre><code><span class="c">┌─────────────────────────────────────────────────┐</span>
+<span class="c">│               AMM Liquidity Pool                │</span>
+<span class="c">│         (where $SRUN trades happen)             │</span>
+<span class="c">└────────────────────┬────────────────────────────┘</span>
+                     <span class="c">│ swap fees generated</span>
+                     ▼
+<span class="c">┌─────────────────────────────────────────────────┐</span>
+<span class="c">│           Bootstrap Fee Interceptor             │</span>
+<span class="c">│    captures fees before any distribution        │</span>
+<span class="c">└──────────┬──────────────────────────┬───────────┘</span>
+           <span class="c">│ 50%                      │ 50%</span>
+           ▼                          ▼
+<span class="c">┌──────────────────┐      ┌───────────────────────┐</span>
+<span class="c">│  Buyback Engine  │      │     LP Depth Router   │</span>
+<span class="c">│  buys $SRUN and  │      │  adds paired liquidity │</span>
+<span class="c">│  burns / locks   │      │  to the pool range     │</span>
+<span class="c">└──────────────────┘      └───────────────────────┘</span></code></pre>
+
+      <h3>Component Summary</h3>
+      <div class="doc-table-wrap">
+        <table class="doc-table">
+          <thead><tr><th>Component</th><th>Role</th><th>Controlled by</th></tr></thead>
+          <tbody>
+            <tr><td><code>AMM Pool</code></td><td>Handles all $SRUN swaps, generates swap fees on every trade</td><td>Permissionless</td></tr>
+            <tr><td><code>Bootstrap Interceptor</code></td><td>Hooks into fee distribution, captures before payout</td><td>Bootstrap Protocol</td></tr>
+            <tr><td><code>Split Router</code></td><td>Divides captured fees 50/50 to buyback and LP targets</td><td>Immutable contract</td></tr>
+            <tr><td><code>Buyback Engine</code></td><td>Market-buys $SRUN using fee allocation, removes supply</td><td>Bootstrap Protocol</td></tr>
+            <tr><td><code>LP Router</code></td><td>Pairs fee allocation with matching token and adds to pool</td><td>Bootstrap Protocol</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Fee Capture -->
+    <div class="doc-section" id="fee-capture">
+      <div class="doc-section-label">Core Mechanics</div>
+      <div class="doc-section-title">Fee Capture</div>
+
+      <p>
+        When a swap occurs in the $SRUN AMM pool, the pool charges a fee on the input token. Under a standard AMM, this fee would be distributed to liquidity providers. Bootstrap intercepts this distribution at the protocol layer.
+      </p>
+
+      <h3>How interception works</h3>
+      <p>
+        Bootstrap registers itself as the fee recipient on pool deployment. Instead of sending fees to LP holders directly, the pool routes all fee accrual to Bootstrap's <code>FeeVault</code> contract. The vault is non-custodial — no address can withdraw from it except the Bootstrap routing contracts.
+      </p>
+
+      <pre><code><span class="c">// Simplified Bootstrap fee vault interface</span>
+<span class="k">interface</span> <span class="n">IFeeVault {</span>
+  <span class="c">// Called by pool on every swap</span>
+  <span class="k">function</span> <span class="n">receiveFees(</span>
+    <span class="k">address</span> <span class="n">token,</span>
+    <span class="k">uint256</span> <span class="n">amount</span>
+  <span class="n">) </span><span class="k">external</span><span class="n">;</span>
+
+  <span class="c">// No external withdrawal — routing only</span>
+  <span class="k">function</span> <span class="n">routeToSplit() </span><span class="k">external</span><span class="n">;</span>
+<span class="n">}</span></code></pre>
+
+      <div class="callout green">
+        <div class="callout-title">&#x2713; Zero leakage</div>
+        Once fees enter the FeeVault, the only exit is through the Split Router. There is no admin function, no emergency withdrawal, and no upgradeable proxy that could redirect the flow.
+      </div>
+
+      <h3>Trigger conditions</h3>
+      <p>
+        Fee routing can be triggered by anyone calling <code>routeToSplit()</code> on the vault — it is a public, permissionless function. In practice, Bootstrap's off-chain keeper calls it automatically after a configurable fee accumulation threshold is reached.
+      </p>
+    </div>
+
+    <!-- Fee Split -->
+    <div class="doc-section" id="fee-split">
+      <div class="doc-section-label">Core Mechanics</div>
+      <div class="doc-section-title">Fee Split</div>
+
+      <p>
+        All captured fees are split equally between two destinations. The ratio is fixed in the Split Router contract and cannot be changed post-deployment.
+      </p>
+
+      <div class="doc-table-wrap">
+        <table class="doc-table">
+          <thead><tr><th>Destination</th><th>Allocation</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>Buyback Engine</td><td><strong>50%</strong></td><td>Market-buy $SRUN, remove from circulation</td></tr>
+            <tr><td>LP Depth Router</td><td><strong>50%</strong></td><td>Add paired liquidity to deepen the pool</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">&#x26A0; Immutable ratio</div>
+        The 50/50 split is encoded directly in the Split Router bytecode. There is no setter function, no governance vote, and no timelock that could alter this ratio. What you see on deployment is what runs forever.
+      </div>
+    </div>
+
+    <!-- Buyback -->
+    <div class="doc-section" id="buyback">
+      <div class="doc-section-label">Core Mechanics</div>
+      <div class="doc-section-title">Buyback Engine</div>
+
+      <p>
+        The Buyback Engine receives its 50% fee allocation and executes a market purchase of $SRUN through the same AMM pool. Purchased tokens are either permanently locked or burned — they never re-enter circulation.
+      </p>
+
+      <h3>Execution flow</h3>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-body">
+            <div class="flow-title">Fee allocation received</div>
+            <p class="flow-desc">Split Router sends 50% of accumulated fees (denominated in the pool's quote token) to the Buyback Engine contract.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-body">
+            <div class="flow-title">Swap executed</div>
+            <p class="flow-desc">The engine calls <code>exactInputSingle</code> on the AMM router, swapping the quote token for $SRUN at market price.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-body">
+            <div class="flow-title">Supply removed</div>
+            <p class="flow-desc">Acquired $SRUN is sent to the dead address (<code>0x000...dEaD</code>), permanently removing it from circulating supply.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-body">
+            <div class="flow-title">Event emitted</div>
+            <p class="flow-desc">A <code>BuybackExecuted</code> event is emitted with the amount of $SRUN purchased and the effective price, visible in the live fee feed.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Price impact mitigation</h3>
+      <p>
+        Buybacks are size-limited per execution. If accumulated fees would cause more than a configured price impact threshold, the execution is split across multiple smaller swaps over successive blocks. This prevents the buyback mechanism itself from causing excessive volatility.
+      </p>
+
+      <pre><code><span class="c">// Buyback size check (simplified)</span>
+<span class="k">uint256</span> <span class="n">maxBuybackPerExecution =</span>
+  <span class="n">poolLiquidity * MAX_IMPACT_BPS / </span><span class="s">10_000</span><span class="n">;</span>
+
+<span class="k">if</span> <span class="n">(allocationAmount > maxBuybackPerExecution) {</span>
+  <span class="c">// Queue remainder for next trigger</span>
+  <span class="n">pendingBuyback += allocationAmount - maxBuybackPerExecution;</span>
+  <span class="n">allocationAmount = maxBuybackPerExecution;</span>
+<span class="n">}</span></code></pre>
+    </div>
+
+    <!-- LP Depth -->
+    <div class="doc-section" id="lp-depth">
+      <div class="doc-section-label">Core Mechanics</div>
+      <div class="doc-section-title">LP Depth</div>
+
+      <p>
+        The LP Depth Router receives the other 50% of fees and adds it back into the pool as concentrated liquidity. This progressively deepens the pool, tightening spreads and reducing price impact for all traders.
+      </p>
+
+      <h3>How liquidity is added</h3>
+      <p>
+        The fee allocation arrives as the quote token. To add balanced liquidity, the router uses half of it to buy $SRUN (at spot), then pairs both tokens and mints a new LP position in a range centered around the current price.
+      </p>
+
+      <pre><code><span class="c">// LP addition logic (simplified)</span>
+<span class="k">uint256</span> <span class="n">halfFees = allocation / </span><span class="s">2</span><span class="n">;</span>
+
+<span class="c">// Buy $SRUN with half</span>
+<span class="k">uint256</span> <span class="n">srunAcquired = swap(quoteToken, srun, halfFees);</span>
+
+<span class="c">// Add paired liquidity around current tick</span>
+<span class="n">pool.mint(</span>
+  <span class="n">recipient: address(this),</span>
+  <span class="n">tickLower: currentTick - RANGE_WIDTH,</span>
+  <span class="n">tickUpper: currentTick + RANGE_WIDTH,</span>
+  <span class="n">amount0: srunAcquired,</span>
+  <span class="n">amount1: halfFees</span>
+<span class="n">);</span></code></pre>
+
+      <h3>Range management</h3>
+      <p>
+        LP positions added by the protocol are concentrated in a tight range around the current market price. As the price moves, new positions continue to be added at the current price, progressively building depth across a wider range over time. Old positions remain active and continue earning fees.
+      </p>
+
+      <div class="callout blue">
+        <div class="callout-title">&#x2139; LP positions are permanent</div>
+        Protocol-owned LP positions are never withdrawn. The liquidity they represent is locked in the pool permanently, providing a continuously deepening floor of support.
+      </div>
+    </div>
+
+    <!-- Bootstrap -->
+    <div class="doc-section" id="bootstrap">
+      <div class="doc-section-label">Bootstrap Protocol</div>
+      <div class="doc-section-title">What is Bootstrap</div>
+
+      <p>
+        <a href="https://www.bootstrapliq.fun/" target="_blank" style="color:var(--blue)">Bootstrap</a> is the on-chain liquidity infrastructure that powers Self Runner. It provides the smart contract primitives for fee interception, non-extractable vaults, autonomous routing, and protocol-owned liquidity management.
+      </p>
+      <p>
+        Self Runner is built as a deployment on top of Bootstrap — it uses Bootstrap's contracts with configuration parameters specific to $SRUN's tokenomics.
+      </p>
+
+      <div class="doc-table-wrap">
+        <table class="doc-table">
+          <thead><tr><th>Bootstrap Primitive</th><th>Used by Self Runner for</th></tr></thead>
+          <tbody>
+            <tr><td><code>FeeVault</code></td><td>Capturing and holding all trading fees from the $SRUN pool</td></tr>
+            <tr><td><code>SplitRouter</code></td><td>Fixed 50/50 routing of fees to buyback and LP targets</td></tr>
+            <tr><td><code>BuybackExecutor</code></td><td>Autonomous market-buy and supply removal of $SRUN</td></tr>
+            <tr><td><code>LPManager</code></td><td>Concentrated liquidity additions to the $SRUN pool</td></tr>
+            <tr><td><code>Keeper</code></td><td>Off-chain trigger for fee routing at accumulation thresholds</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bootstrap Routing -->
+    <div class="doc-section" id="bootstrap-routing">
+      <div class="doc-section-label">Bootstrap Protocol</div>
+      <div class="doc-section-title">Fee Routing</div>
+
+      <p>
+        Bootstrap's fee routing follows a strict on-chain path. No off-chain component has the ability to redirect fees — the keeper can only trigger routing, not modify its destination.
+      </p>
+
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-body">
+            <div class="flow-title">Swap occurs in AMM pool</div>
+            <p class="flow-desc">Any trade against the $SRUN pool generates a fee. The pool calls <code>FeeVault.receiveFees()</code> instead of distributing to LPs.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-body">
+            <div class="flow-title">Vault accumulates</div>
+            <p class="flow-desc">Fees sit in the FeeVault until the accumulation threshold is met, or until anyone calls <code>routeToSplit()</code> manually.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-body">
+            <div class="flow-title">Keeper triggers routing</div>
+            <p class="flow-desc">Bootstrap's keeper monitors the vault balance and calls <code>routeToSplit()</code> when threshold is reached. The call is permissionless — anyone can trigger it.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-body">
+            <div class="flow-title">SplitRouter executes</div>
+            <p class="flow-desc">50% is forwarded to <code>BuybackExecutor</code>, 50% to <code>LPManager</code>. Both execute atomically in the same transaction.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-body">
+            <div class="flow-title">Events emitted, feed updated</div>
+            <p class="flow-desc"><code>BuybackExecuted</code> and <code>LiquidityAdded</code> events are emitted. The Self Runner fee feed reads these events to display live activity.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Security -->
+    <div class="doc-section" id="bootstrap-security">
+      <div class="doc-section-label">Bootstrap Protocol</div>
+      <div class="doc-section-title">Security Model</div>
+
+      <p>
+        Bootstrap's contracts are designed with a minimal attack surface. The key security properties relevant to Self Runner:
+      </p>
+
+      <h3>No admin withdrawal</h3>
+      <p>
+        The <code>FeeVault</code> has no <code>withdraw()</code>, <code>emergencyExit()</code>, or equivalent function. The only way fees can leave the vault is through <code>routeToSplit()</code>, which sends them directly to the immutable split contracts.
+      </p>
+
+      <h3>No upgradeable proxies</h3>
+      <p>
+        Bootstrap's core contracts (FeeVault, SplitRouter, BuybackExecutor, LPManager) are deployed as non-upgradeable implementations. There is no <code>upgradeTo()</code> function, no proxy admin, and no way to change the contract logic post-deployment.
+      </p>
+
+      <h3>No owner privileges on fee flow</h3>
+      <p>
+        The deployer of Self Runner has no special privileges over the fee routing. They cannot pause routing, redirect allocations, or change the split ratio. The only deployer control is over non-fee parameters like UI metadata.
+      </p>
+
+      <div class="callout green">
+        <div class="callout-title">&#x2713; Trust assumptions</div>
+        You only need to trust the Bootstrap contract code — not the Self Runner team, not any multisig, and not any off-chain keeper. The keeper can trigger routing but cannot alter where funds go.
+      </div>
+
+      <h3>Reentrancy</h3>
+      <p>
+        All Bootstrap contracts use the checks-effects-interactions pattern and include reentrancy guards on all external-call-bearing functions. Fee vault state is updated before any token transfers occur.
+      </p>
+    </div>
+
+    <!-- Token -->
+    <div class="doc-section" id="token">
+      <div class="doc-section-label">Token</div>
+      <div class="doc-section-title">$SRUN Token</div>
+
+      <p>
+        $SRUN is the native token of the Self Runner system. It is a standard ERC-20 (or SPL on Solana) token with no mint function beyond the initial supply and no special transfer hooks.
+      </p>
+
+      <div class="doc-table-wrap">
+        <table class="doc-table">
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Name</td><td>Self Runner</td></tr>
+            <tr><td>Symbol</td><td>$SRUN</td></tr>
+            <tr><td>Contract</td><td><code>0x0000...0000</code> <span class="tag tag-ink">TBA</span></td></tr>
+            <tr><td>Supply</td><td>Fixed at launch, no mint function</td></tr>
+            <tr><td>Tax / Transfer fee</td><td>None — all fees are AMM swap fees via Bootstrap</td></tr>
+            <tr><td>Ownership</td><td>Renounced post-deployment</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>No transfer tax</h3>
+      <p>
+        $SRUN does not use a transfer tax or fee-on-transfer mechanism. All fee generation happens at the AMM pool level through standard swap fees — not on token transfers. This makes $SRUN compatible with all standard DeFi tooling without special handling.
+      </p>
+    </div>
+
+    <!-- Floor Mechanics -->
+    <div class="doc-section" id="floor">
+      <div class="doc-section-label">Token</div>
+      <div class="doc-section-title">Floor Mechanics</div>
+
+      <p>
+        The "floor" in Self Runner refers to the effective price support created by two compounding forces: supply compression from buybacks, and liquidity depth from LP additions.
+      </p>
+
+      <h3>Supply pressure</h3>
+      <p>
+        Every buyback removes $SRUN from the market permanently. With a fixed total supply and a continuously decreasing circulating supply, the effective market cap at any given price increases over time. This creates a ratcheting effect — each buyback makes the next buyback more impactful per dollar spent.
+      </p>
+
+      <h3>Liquidity depth</h3>
+      <p>
+        As protocol-owned LP grows, the pool becomes more resistant to price impact from individual trades. A deep pool means a seller must move significantly more volume to push the price down by a given percentage. This translates directly to a more stable price floor.
+      </p>
+
+      <h3>Combined effect</h3>
+      <pre><code><span class="c">// Simplified floor strength model</span>
+
+<span class="c">// As cycles progress:</span>
+<span class="n">circulatingSupply -= buybackAmount;      </span><span class="c">// each cycle</span>
+<span class="n">poolLiquidity     += lpAdditionAmount;   </span><span class="c">// each cycle</span>
+
+<span class="c">// Price impact per unit of sell pressure:</span>
+<span class="n">priceImpact = sellAmount / poolLiquidity;</span>
+
+<span class="c">// With growing poolLiquidity,</span>
+<span class="c">// the same sell causes less impact each cycle.</span></code></pre>
+    </div>
+
+    <!-- Flywheel -->
+    <div class="doc-section" id="flywheel">
+      <div class="doc-section-label">Token</div>
+      <div class="doc-section-title">The Flywheel Loop</div>
+
+      <p>
+        The five-step flywheel is the core compounding loop of Self Runner. Each step feeds the next, and the final step reinforces the first.
+      </p>
+
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-body">
+            <div class="flow-title">Trade happens</div>
+            <p class="flow-desc">A user swaps against the $SRUN AMM pool. The pool charges a swap fee (e.g. 1%) on the input amount. Bootstrap captures this fee into the FeeVault.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-body">
+            <div class="flow-title">Bootstrap captures fees automatically</div>
+            <p class="flow-desc">The FeeVault accumulates fees from every trade. No distribution to LPs occurs. Nothing leaves the system.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-body">
+            <div class="flow-title">Fees split: buybacks + LP depth</div>
+            <p class="flow-desc">SplitRouter divides the accumulated fees 50/50. BuybackExecutor and LPManager each receive their allocation and execute atomically.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-body">
+            <div class="flow-title">Deeper LP means more stable floor</div>
+            <p class="flow-desc">The LP addition increases pool depth. Future trades experience lower slippage. The price floor becomes harder to push through.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-body">
+            <div class="flow-title">Stable floor attracts more trades</div>
+            <p class="flow-desc">A stable, deep market with predictable floor mechanics attracts more traders. Volume increases, generating more fees. Return to step 1.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parameters -->
+    <div class="doc-section" id="parameters">
+      <div class="doc-section-label">Reference</div>
+      <div class="doc-section-title">Parameters</div>
+
+      <p>The key parameters governing Self Runner's behavior via Bootstrap:</p>
+
+      <div class="doc-table-wrap">
+        <table class="doc-table">
+          <thead><tr><th>Parameter</th><th>Value</th><th>Mutable</th></tr></thead>
+          <tbody>
+            <tr><td><code>feeRate</code></td><td>1% per swap</td><td><span class="tag tag-ink">No</span></td></tr>
+            <tr><td><code>splitRatio</code></td><td>50 / 50 (buyback / LP)</td><td><span class="tag tag-ink">No</span></td></tr>
+            <tr><td><code>routingThreshold</code></td><td>Accumulation threshold before routing triggers</td><td><span class="tag tag-blue">Keeper</span></td></tr>
+            <tr><td><code>maxBuybackImpact</code></td><td>Max price impact per buyback execution</td><td><span class="tag tag-ink">No</span></td></tr>
+            <tr><td><code>lpRangeWidth</code></td><td>Tick range for new LP positions (±N ticks from current)</td><td><span class="tag tag-ink">No</span></td></tr>
+            <tr><td><code>burnAddress</code></td><td><code>0x000...dEaD</code></td><td><span class="tag tag-ink">No</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">&#x26A0; Immutable core parameters</div>
+        All parameters marked "No" are encoded in the deployed bytecode. They cannot be changed by any address — not the deployer, not Bootstrap, not a DAO vote.
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="doc-section" id="faq">
+      <div class="doc-section-label">Reference</div>
+      <div class="doc-section-title">FAQ</div>
+
+      <h3>Can the team take the fees?</h3>
+      <p>
+        No. Fees enter the Bootstrap FeeVault which has no withdrawal function accessible to any EOA. The only exit is through the SplitRouter into buybacks and LP. The team has no privileged access to the fee flow.
+      </p>
+
+      <h3>What happens if no one trades?</h3>
+      <p>
+        If trading volume drops to zero, no new fees are generated and the flywheel stops adding fuel. However, the existing protocol-owned liquidity and buybacks that have already executed remain. Supply is still compressed and LP is still deep — the floor doesn't unwind.
+      </p>
+
+      <h3>Can the LP be removed?</h3>
+      <p>
+        Protocol-owned LP positions minted by Bootstrap's LPManager have no withdrawal function. They are permanently locked in the pool. This means liquidity can only grow over time, never decrease through protocol actions.
+      </p>
+
+      <h3>Is Bootstrap audited?</h3>
+      <p>
+        Refer to the <a href="https://www.bootstrapliq.fun/" target="_blank" style="color:var(--blue)">Bootstrap documentation</a> for audit status and reports.
+      </p>
+
+      <h3>What chain is Self Runner on?</h3>
+      <p>
+        Contract address and chain details will be published at launch. Check the <a href="https://x.com/i/communities/2029489835673547245" target="_blank" style="color:var(--blue)">X Community</a> for updates.
+      </p>
+
+      <h3>Who can trigger fee routing?</h3>
+      <p>
+        Anyone. <code>routeToSplit()</code> is a public permissionless function. Bootstrap's keeper calls it automatically, but any wallet can call it manually at any time. Triggering it early just processes whatever fees have accumulated up to that point.
+      </p>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* Active sidebar link on scroll */
+const sections = document.querySelectorAll('.doc-section');
+const links = document.querySelectorAll('.sidebar-link');
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const match = document.querySelector(`.sidebar-link[href="#${e.target.id}"]`);
+      if (match) match.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>

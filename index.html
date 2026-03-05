@@ -143,6 +143,26 @@
     box-shadow: 4px 4px 0 var(--ink);
   }
 
+  .nav-community {
+    font-family: var(--font);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink-light);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1.5px solid var(--ink);
+    padding: 6px 14px;
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .nav-community:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
   /* ─── Hero ─────────────────────────────────────────── */
   .hero {
     position: relative;
@@ -854,8 +874,15 @@
     <li><a href="#how-it-works">How It Works</a></li>
     <li><a href="#fee-feed">Fee Feed</a></li>
     <li><a href="#flywheel">Flywheel</a></li>
+    <li><a href="docs.html">Docs</a></li>
   </ul>
-  <a href="#contract" class="nav-cta">Buy $SRUN</a>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <a href="https://x.com/i/communities/2029489835673547245" target="_blank" class="nav-community" title="X Community">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Community
+    </a>
+    <a href="#contract" class="nav-cta">Buy $SRUN</a>
+  </div>
 </nav>
 
 <!-- ─── Hero ─────────────────────────────────────────── -->
@@ -1269,9 +1296,9 @@
 <footer>
   <span>© 2025 Self Runner · All fees stay in the system</span>
   <span>
-    <a href="#">Twitter / X</a> &nbsp;·&nbsp;
-    <a href="#">Telegram</a> &nbsp;·&nbsp;
-    <a href="#">Docs</a>
+    <a href="https://x.com/i/communities/2029489835673547245" target="_blank">X Community</a> &nbsp;·&nbsp;
+    <a href="https://www.bootstrapliq.fun/" target="_blank">Bootstrap</a> &nbsp;·&nbsp;
+    <a href="docs.html">Docs</a>
   </span>
 </footer>
 
