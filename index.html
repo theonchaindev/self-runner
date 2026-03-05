@@ -1202,21 +1202,42 @@
       <div class="section-label">Live Activity</div>
       <h2 class="section-title" style="margin-bottom:0">Fee Feed</h2>
     </div>
-    <div class="feed-live" style="background:var(--paper-dark); color:var(--ink-light); border-color:rgba(26,26,26,0.3);">
-      <div class="feed-live-dot" style="background:#aaa; box-shadow:none;"></div>
-      Coming Soon
+    <div class="feed-live" id="feed-status-badge">
+      <div class="feed-live-dot" id="feed-dot" style="background:#aaa;animation:none;"></div>
+      <span id="feed-status-text">Connecting…</span>
     </div>
   </div>
 
-  <div class="feed-box" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;text-align:center;min-height:260px;">
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px;opacity:0.35;">
-      <circle cx="24" cy="24" r="20" stroke="#1a1a1a" stroke-width="2" stroke-dasharray="6 4"/>
-      <path d="M24 14 L24 26 L32 30" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <div style="font-family:var(--font-brush);font-size:1.8rem;color:var(--ink);margin-bottom:10px;">Live Feed Coming Soon</div>
-    <p style="font-family:var(--font);font-size:1.05rem;color:var(--ink-light);max-width:420px;line-height:1.6;">
-      The live fee feed will go live at launch. Every 30-minute LP flush will stream here in real time — on-chain, transparent, unstoppable.
-    </p>
+  <div class="feed-box">
+    <div class="feed-stats">
+      <div class="feed-stat">
+        <div class="feed-stat-label">Dev Buys</div>
+        <div class="feed-stat-value blue" id="stat-buys">—</div>
+      </div>
+      <div class="feed-stat">
+        <div class="feed-stat-label">LP Adds</div>
+        <div class="feed-stat-value" id="stat-lp">—</div>
+      </div>
+      <div class="feed-stat">
+        <div class="feed-stat-label">Last Event</div>
+        <div class="feed-stat-value" id="stat-last" style="font-size:1.1rem">—</div>
+      </div>
+    </div>
+    <div class="feed-list" id="feed-list">
+      <div style="padding:40px;text-align:center;color:var(--ink-faint);font-size:1rem;">Connecting to chain…</div>
+    </div>
+    <div class="split-bar">
+      <div class="split-half">
+        <div class="split-half-label">Dev Wallet</div>
+        <div class="split-half-desc" style="font-family:monospace;font-size:0.72rem;word-break:break-all;color:var(--ink);">BMTv…454d</div>
+        <div class="split-half-desc">Buy activity</div>
+      </div>
+      <div class="split-half">
+        <div class="split-half-label">LP Wallet</div>
+        <div class="split-half-desc" style="font-family:monospace;font-size:0.72rem;word-break:break-all;color:var(--ink);">DH73…msn</div>
+        <div class="split-half-desc">LP flush events</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1275,6 +1296,123 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.15 });
 
 document.querySelectorAll('.how-step, .flywheel-item').forEach(el => observer.observe(el));
+
+/* ── Live Fee Feed ─────────────────────────── */
+(function() {
+  const MINT = 'D1hNgedHFgLnmFRn74Jb4cC18zEAwMqmu61oncr8pump';
+  const DEV  = 'BMTvyJWDzJ4ceW7iATP6CscWJbwzPji6YkBX5Tze454d';
+  const LP   = 'DH738ZuACrJEHomsvQv4VXzveCa5QLG35xLQA9FFbmsn';
+  const RPC  = 'https://api.mainnet-beta.solana.com';
+  const seen = new Set();
+  let events = [], buyCount = 0, lpCount = 0;
+
+  async function rpcCall(method, params) {
+    try {
+      const r = await fetch(RPC, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({jsonrpc:'2.0',id:1,method,params})
+      });
+      return (await r.json()).result;
+    } catch { return null; }
+  }
+
+  function involvesToken(tx) {
+    return [...(tx?.meta?.preTokenBalances||[]), ...(tx?.meta?.postTokenBalances||[])]
+      .some(b => b.mint === MINT);
+  }
+
+  function solDelta(tx, wallet) {
+    const keys = (tx?.transaction?.message?.accountKeys||[]).map(k => k.pubkey||k);
+    const i = keys.indexOf(wallet);
+    if (i < 0) return 0;
+    return ((tx?.meta?.postBalances?.[i]||0) - (tx?.meta?.preBalances?.[i]||0)) / 1e9;
+  }
+
+  function tokenDelta(tx, wallet) {
+    const sum = arr => arr.reduce((s,b)=>s+parseFloat(b.uiTokenAmount?.uiAmount||0),0);
+    const pre  = (tx?.meta?.preTokenBalances||[]).filter(b=>b.mint===MINT&&b.owner===wallet);
+    const post = (tx?.meta?.postTokenBalances||[]).filter(b=>b.mint===MINT&&b.owner===wallet);
+    return sum(post) - sum(pre);
+  }
+
+  function ago(t) {
+    if (!t) return 'just now';
+    const d = Math.floor(Date.now()/1000 - t);
+    if (d < 60) return `${d}s ago`;
+    if (d < 3600) return `${Math.floor(d/60)}m ago`;
+    return `${Math.floor(d/3600)}h ago`;
+  }
+
+  function render() {
+    const list = document.getElementById('feed-list');
+    if (!list) return;
+    document.getElementById('stat-buys').textContent = buyCount;
+    document.getElementById('stat-lp').textContent = lpCount;
+    document.getElementById('stat-last').textContent = events[0]?.time || '—';
+    if (!events.length) {
+      list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--ink-faint);font-size:1rem;">No events yet — watching the chain…</div>';
+      return;
+    }
+    list.innerHTML = events.slice(0,20).map(ev=>`
+      <div class="feed-item">
+        <div class="feed-item-icon">${ev.icon}</div>
+        <div style="flex:1;">
+          <div class="feed-item-type">${ev.label}</div>
+          <div class="feed-item-sub"><a href="https://solscan.io/tx/${ev.sig}" target="_blank" style="color:var(--blue);text-decoration:none;">${ev.sig.slice(0,8)}…</a></div>
+        </div>
+        <div class="feed-item-amount">${ev.amount}</div>
+        <div class="feed-item-time">${ev.time}</div>
+      </div>`).join('');
+  }
+
+  async function poll() {
+    const [ds, ls] = await Promise.all([
+      rpcCall('getSignaturesForAddress', [DEV, {limit:5}]),
+      rpcCall('getSignaturesForAddress', [LP,  {limit:5}])
+    ]);
+    const fresh = [];
+    for (const s of (ds||[])) if (!seen.has(s.signature)) fresh.push({s, who:'dev'});
+    for (const s of (ls||[])) if (!seen.has(s.signature)) fresh.push({s, who:'lp'});
+
+    for (const {s, who} of fresh.slice(0,6)) {
+      seen.add(s.signature);
+      if (s.err) continue;
+      const tx = await rpcCall('getTransaction', [s.signature,{encoding:'jsonParsed',maxSupportedTransactionVersion:0}]);
+      if (!tx || !involvesToken(tx)) continue;
+      const wallet = who === 'dev' ? DEV : LP;
+      const sol = solDelta(tx, wallet);
+      const tok = tokenDelta(tx, wallet);
+      if (who === 'dev') {
+        const spent = -sol, gained = tok;
+        if (spent < 0.0001 && gained <= 0) continue;
+        buyCount++;
+        events.unshift({
+          icon: '📈', label: 'Dev Buy', sig: s.signature,
+          amount: spent > 0 ? `${spent.toFixed(3)} SOL` : gained > 0 ? `+${gained.toLocaleString(undefined,{maximumFractionDigits:0})} $RUN` : '—',
+          time: ago(tx.blockTime)
+        });
+      } else {
+        const spent = -sol;
+        lpCount++;
+        events.unshift({
+          icon: '💧', label: 'LP Add', sig: s.signature,
+          amount: spent > 0 ? `${spent.toFixed(3)} SOL` : '—',
+          time: ago(tx.blockTime)
+        });
+      }
+    }
+    if (events.length > 50) events = events.slice(0,50);
+    const dot = document.getElementById('feed-dot');
+    const txt = document.getElementById('feed-status-text');
+    if (dot) { dot.style.background='var(--blue)'; dot.style.animation='pulse 1.4s ease infinite'; }
+    if (txt) txt.textContent = 'Live';
+    render();
+  }
+
+  poll();
+  setInterval(poll, 30000);
+})();
 
 /* ── Copy CA ───────────────────────────────── */
 function copyCA() {
