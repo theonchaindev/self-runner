@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Self Runner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Caveat+Brush&display=swap" rel="stylesheet" />
+<style>
+  /* ─── Reset & Base ─────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --paper: #f4f0e8;
+    --paper-dark: #e8e2d4;
+    --ink: #1a1a1a;
+    --ink-light: #3a3530;
+    --ink-faint: rgba(26,26,26,0.35);
+    --blue: #3b6fd4;
+    --blue-light: #5a8be8;
+    --blue-faint: rgba(59,111,212,0.12);
+    --sketch: #2a2420;
+    --font: 'Caveat', cursive;
+    --font-brush: 'Caveat Brush', cursive;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background-color: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Paper texture via SVG noise */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  /* Subtle paper fold lines */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── Nav ──────────────────────────────────────────── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    background: rgba(244, 240, 232, 0.88);
+    backdrop-filter: blur(8px);
+    border-bottom: 2px solid transparent;
+    border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='4'%3E%3Cpath d='M0 2 Q10 1 20 2 Q30 3 40 2 Q50 1 60 2 Q70 3 80 2 Q90 1 100 2' stroke='%231a1a1a' stroke-width='1.5' fill='none' opacity='0.25'/%3E%3C/svg%3E") 2 stretch;
+  }
+
+  .nav-logo {
+    font-family: var(--font-brush);
+    font-size: 1.5rem;
+    color: var(--ink);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-logo-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--font);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink-light);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.2s;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 2px;
+    background: var(--blue);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s;
+    border-radius: 2px;
+  }
+
+  .nav-links a:hover { color: var(--blue); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  .nav-cta {
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--paper);
+    background: var(--blue);
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .nav-cta:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  /* ─── Hero ─────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--blue);
+    border: 1.5px solid var(--blue);
+    border-radius: 100px;
+    padding: 4px 16px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s ease forwards;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: var(--font-brush);
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.22s ease forwards;
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero-title-underline {
+    position: absolute;
+    bottom: -8px;
+    left: 0; right: 0;
+    height: 10px;
+    overflow: visible;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    color: var(--ink-light);
+    max-width: 540px;
+    line-height: 1.5;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.34s ease forwards;
+  }
+
+  .hero-illustration {
+    width: min(580px, 90vw);
+    margin: 40px auto 0;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.45s ease forwards;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.56s ease forwards;
+  }
+
+  .btn-primary {
+    font-family: var(--font);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--paper);
+    background: var(--blue);
+    border: 2px solid var(--ink);
+    padding: 12px 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .btn-primary:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+
+  .btn-secondary {
+    font-family: var(--font);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: transparent;
+    border: 2px solid var(--ink);
+    padding: 12px 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 var(--ink-faint);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .btn-secondary:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink-faint);
+  }
+
+  /* ─── Section wrapper ──────────────────────────────── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-family: var(--font-brush);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: var(--ink);
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+
+  .section-desc {
+    font-size: 1.15rem;
+    color: var(--ink-light);
+    max-width: 540px;
+    line-height: 1.6;
+    margin-bottom: 60px;
+  }
+
+  /* Sketch divider between sections */
+  .sketch-divider {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    overflow: visible;
+    height: 24px;
+    display: block;
+  }
+
+  /* ─── How It Works ─────────────────────────────────── */
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 24px;
+    position: relative;
+  }
+
+  /* Connecting arrow between steps */
+  .how-grid::before {
+    content: '';
+    position: absolute;
+    top: 60px;
+    left: calc(10% + 12px);
+    right: calc(10% + 12px);
+    height: 2px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--blue) 0px,
+      var(--blue) 8px,
+      transparent 8px,
+      transparent 14px
+    );
+    opacity: 0.4;
+    z-index: 0;
+  }
+
+  .how-step {
+    position: relative;
+    z-index: 1;
+    background: var(--paper-dark);
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    padding: 28px 20px 24px;
+    box-shadow: 5px 5px 0 var(--ink);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+
+  .how-step:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 var(--ink);
+  }
+
+  .how-step.visible { animation: fadeUp 0.5s ease forwards; }
+
+  .step-num {
+    font-family: var(--font-brush);
+    font-size: 2.8rem;
+    color: var(--blue);
+    line-height: 1;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .step-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+  }
+
+  .step-title {
+    font-family: var(--font);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .step-desc {
+    font-size: 1rem;
+    color: var(--ink-light);
+    line-height: 1.5;
+  }
+
+  /* ─── Flywheel Visual ──────────────────────────────── */
+  .flywheel-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    margin-top: 60px;
+  }
+
+  .flywheel-diagram {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .flywheel-text { }
+
+  .flywheel-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+
+  .flywheel-item.visible { animation: fadeLeft 0.5s ease forwards; }
+
+  .flywheel-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--blue);
+    border: 2px solid var(--ink);
+    flex-shrink: 0;
+    margin-top: 4px;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+
+  .flywheel-item-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .flywheel-item-desc {
+    font-size: 1rem;
+    color: var(--ink-light);
+    line-height: 1.5;
+  }
+
+  /* ─── Fee Feed ─────────────────────────────────────── */
+  #fee-feed { background: none; }
+
+  .feed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .feed-live {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--blue);
+  }
+
+  .feed-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--blue);
+    animation: pulse 1.4s ease infinite;
+  }
+
+  .feed-box {
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    background: var(--paper-dark);
+    box-shadow: 5px 5px 0 var(--ink);
+    overflow: hidden;
+  }
+
+  .feed-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .feed-stat {
+    padding: 20px 24px;
+    border-right: 2px solid var(--ink);
+  }
+
+  .feed-stat:last-child { border-right: none; }
+
+  .feed-stat-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+
+  .feed-stat-value {
+    font-family: var(--font-brush);
+    font-size: 1.9rem;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .feed-stat-value.blue { color: var(--blue); }
+
+  .feed-stat-change {
+    font-size: 0.85rem;
+    color: #2e7d32;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .feed-list {
+    max-height: 340px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink-faint) transparent;
+  }
+
+  .feed-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(26,26,26,0.1);
+    font-size: 1rem;
+    animation: feedSlide 0.4s ease;
+    transition: background 0.15s;
+  }
+
+  .feed-item:hover { background: rgba(59,111,212,0.06); }
+  .feed-item:last-child { border-bottom: none; }
+
+  .feed-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--blue-faint);
+    border: 1.5px solid var(--blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+  }
+
+  .feed-item-type {
+    flex: 1;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .feed-item-sub {
+    font-size: 0.88rem;
+    color: var(--ink-faint);
+    margin-top: 1px;
+  }
+
+  .feed-item-amount {
+    font-family: var(--font-brush);
+    font-size: 1.1rem;
+    color: var(--blue);
+    text-align: right;
+  }
+
+  .feed-item-time {
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    width: 52px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Split bar */
+  .split-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 2px solid var(--ink);
+  }
+
+  .split-half {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .split-half:first-child { border-right: 2px solid var(--ink); }
+
+  .split-half-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+  }
+
+  .split-half-value {
+    font-family: var(--font-brush);
+    font-size: 1.5rem;
+    color: var(--ink);
+  }
+
+  .split-half-desc {
+    font-size: 0.9rem;
+    color: var(--ink-light);
+    line-height: 1.4;
+  }
+
+  .split-bar-visual {
+    height: 8px;
+    background: var(--paper-dark);
+    border-top: 2px solid var(--ink);
+    display: flex;
+    overflow: hidden;
+  }
+
+  .split-bar-fill {
+    background: var(--blue);
+    transition: width 1.2s ease;
+  }
+
+  .split-bar-fill-2 {
+    background: var(--ink);
+    opacity: 0.25;
+  }
+
+  /* ─── CTA / Contract ───────────────────────────────── */
+  .cta-section {
+    text-align: center;
+    padding: 80px 24px 120px;
+  }
+
+  .contract-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--paper-dark);
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    padding: 14px 24px;
+    box-shadow: 4px 4px 0 var(--ink);
+    margin-top: 32px;
+    max-width: 100%;
+  }
+
+  .contract-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+
+  .contract-addr {
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: var(--ink);
+    word-break: break-all;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: var(--font);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--ink);
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover { background: var(--ink); color: var(--paper); }
+
+  /* ─── Footer ────��──────────────────────────────────── */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 2px solid rgba(26,26,26,0.15);
+    padding: 32px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    color: var(--ink-faint);
+  }
+
+  footer a {
+    color: var(--blue);
+    text-decoration: none;
+  }
+
+  footer a:hover { text-decoration: underline; }
+
+  /* ─── Animations ───────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeLeft {
+    from { opacity: 0; transform: translateX(-16px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  @keyframes feedSlide {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes drawLine {
+    from { stroke-dashoffset: 600; }
+    to   { stroke-dashoffset: 0; }
+  }
+
+  /* ─── Responsive ───────────────────────────────────── */
+  @media (max-width: 768px) {
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+    section { padding: 72px 20px; }
+    .flywheel-wrap { grid-template-columns: 1fr; }
+    .feed-stats { grid-template-columns: 1fr; }
+    .feed-stat { border-right: none; border-bottom: 2px solid var(--ink); }
+    .feed-stat:last-child { border-bottom: none; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── Nav ──────────────────────────────────────────── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="nav-logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Sketch running figure -->
+      <circle cx="22" cy="7" r="3" stroke="#1a1a1a" stroke-width="1.8" fill="none"/>
+      <path d="M22 10 L20 18 L15 24" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      <path d="M20 18 L25 23" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      <path d="M17 14 L26 14" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      <path d="M15 24 L12 28" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M25 23 L28 27" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none"/>
+    </svg>
+    Self Runner
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#fee-feed">Fee Feed</a></li>
+    <li><a href="#flywheel">Flywheel</a></li>
+  </ul>
+  <a href="#contract" class="nav-cta">Buy $SRUN</a>
+</nav>
+
+<!-- ─── Hero ─────────────────────────────────────────── -->
+<section class="hero">
+  <span class="hero-tag">Autonomous DeFi Engine</span>
+
+  <h1 class="hero-title">
+    Self Runner
+    <svg class="hero-title-underline" viewBox="0 0 300 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 8 Q30 4 60 7 Q90 10 120 6 Q150 2 180 7 Q210 11 240 6 Q270 2 298 8"
+        stroke="#3b6fd4" stroke-width="3" stroke-linecap="round" fill="none"
+        stroke-dasharray="600" stroke-dashoffset="600"
+        style="animation: drawLine 1s 0.8s ease forwards;"/>
+    </svg>
+  </h1>
+
+  <p class="hero-subtitle">
+    A self-sustaining fee engine — trades feed the system,
+    buybacks protect the floor, and deeper liquidity compounds itself.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#how-it-works" class="btn-primary">See How It Works</a>
+    <a href="#fee-feed" class="btn-secondary">Live Fee Feed</a>
+  </div>
+
+  <!-- Hero sketch illustration -->
+  <svg class="hero-illustration" viewBox="0 0 580 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Paper crumple lines -->
+    <path d="M0 60 Q145 55 290 62 Q435 69 580 58" stroke="#1a1a1a" stroke-width="0.6" opacity="0.08"/>
+    <path d="M0 130 Q145 125 290 133 Q435 140 580 128" stroke="#1a1a1a" stroke-width="0.6" opacity="0.08"/>
+
+    <!-- Step labels -->
+    <text x="40" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Trade</text>
+    <text x="145" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Capture</text>
+    <text x="255" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Split</text>
+    <text x="360" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Deepen LP</text>
+    <text x="476" y="195" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.55">Floor</text>
+
+    <!-- Connecting arrows (sketchy) -->
+    <path d="M88 100 Q115 92 140 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3"/>
+    <polygon points="140,96 150,100 140,104" fill="#3b6fd4" opacity="0.8"/>
+
+    <path d="M196 100 Q222 92 247 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3"/>
+    <polygon points="247,96 257,100 247,104" fill="#3b6fd4" opacity="0.8"/>
+
+    <path d="M303 100 Q330 92 355 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3"/>
+    <polygon points="355,96 365,100 355,104" fill="#3b6fd4" opacity="0.8"/>
+
+    <path d="M415 100 Q442 92 467 100" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 3"/>
+    <polygon points="467,96 477,100 467,104" fill="#3b6fd4" opacity="0.8"/>
+
+    <!-- Node 1: Trade -->
+    <rect x="14" y="72" width="74" height="56" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
+    <path d="M30 110 L40 90 L50 100 L60 82 L70 95" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="51" y="118" font-family="Caveat,cursive" font-size="11" fill="#1a1a1a" opacity="0.6" text-anchor="middle">fees gen.</text>
+
+    <!-- Node 2: Capture -->
+    <rect x="120" y="72" width="76" height="56" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
+    <!-- magnet sketch -->
+    <path d="M142 88 Q142 108 158 108 Q174 108 174 88" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <line x1="142" y1="88" x2="142" y2="82" stroke="#3b6fd4" stroke-width="3" stroke-linecap="round"/>
+    <line x1="174" y1="88" x2="174" y2="82" stroke="#3b6fd4" stroke-width="3" stroke-linecap="round"/>
+    <text x="158" y="118" font-family="Caveat,cursive" font-size="11" fill="#1a1a1a" opacity="0.6" text-anchor="middle">auto-lock</text>
+
+    <!-- Node 3: Split -->
+    <rect x="228" y="72" width="74" height="56" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
+    <line x1="265" y1="80" x2="265" y2="120" stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.4"/>
+    <text x="246" y="102" font-family="Caveat Brush,cursive" font-size="14" fill="#3b6fd4">50%</text>
+    <text x="246" y="116" font-family="Caveat,cursive" font-size="10" fill="#1a1a1a" opacity="0.5">buyback</text>
+    <text x="270" y="102" font-family="Caveat Brush,cursive" font-size="14" fill="#1a1a1a" opacity="0.7">50%</text>
+    <text x="270" y="116" font-family="Caveat,cursive" font-size="10" fill="#1a1a1a" opacity="0.5">LP</text>
+
+    <!-- Node 4: Deepen LP -->
+    <rect x="336" y="72" width="78" height="56" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
+    <!-- bar chart -->
+    <rect x="348" y="110" width="10" height="14" rx="1" fill="#3b6fd4" opacity="0.5"/>
+    <rect x="362" y="100" width="10" height="24" rx="1" fill="#3b6fd4" opacity="0.7"/>
+    <rect x="376" y="88" width="10" height="36" rx="1" fill="#3b6fd4"/>
+    <rect x="390" y="94" width="10" height="30" rx="1" fill="#3b6fd4" opacity="0.6"/>
+    <text x="375" y="82" font-family="Caveat,cursive" font-size="10" fill="#1a1a1a" opacity="0.5" text-anchor="middle">depth↑</text>
+
+    <!-- Node 5: Floor -->
+    <rect x="448" y="72" width="74" height="56" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
+    <!-- floor line -->
+    <line x1="462" y1="116" x2="508" y2="116" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/>
+    <path d="M462 108 Q472 90 482 104 Q492 118 502 96 Q508 86 510 80" stroke="#3b6fd4" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <text x="485" y="82" font-family="Caveat,cursive" font-size="10" fill="#1a1a1a" opacity="0.5" text-anchor="middle">stable↑</text>
+
+    <!-- Loopback arrow -->
+    <path d="M522 100 Q560 50 560 30 Q560 10 290 18 Q20 26 20 60" stroke="#3b6fd4" stroke-width="1.8" fill="none" stroke-dasharray="6 4" opacity="0.5" stroke-linecap="round"/>
+    <polygon points="20,60 14,50 26,50" fill="#3b6fd4" opacity="0.5"/>
+    <text x="290" y="14" font-family="Caveat,cursive" font-size="11" fill="#3b6fd4" opacity="0.65" text-anchor="middle">more trades →</text>
+  </svg>
+</section>
+
+<!-- Sketch divider -->
+<svg class="sketch-divider" viewBox="0 0 1100 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <path d="M0 12 Q137.5 6 275 12 Q412.5 18 550 12 Q687.5 6 825 12 Q962.5 18 1100 12"
+    stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="8 5" opacity="0.18"/>
+</svg>
+
+<!-- ─── How It Works ─────────────────────────────────── -->
+<section id="how-it-works">
+  <div class="section-label">Mechanism</div>
+  <h2 class="section-title">How It Works</h2>
+  <p class="section-desc">
+    Five automatic steps that run every trade — no governance, no intervention needed.
+  </p>
+
+  <div class="how-grid">
+    <!-- Step 1 -->
+    <div class="how-step" data-delay="0">
+      <span class="step-num">01</span>
+      <svg class="step-icon" viewBox="0 0 40 40" fill="none">
+        <path d="M6 30 L14 16 L22 23 L30 10 L38 18" stroke="#3b6fd4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="14" cy="16" r="2.5" fill="#3b6fd4"/>
+        <circle cx="30" cy="10" r="2.5" fill="#3b6fd4"/>
+      </svg>
+      <div class="step-title">Trade Happens</div>
+      <div class="step-desc">Any swap on the pool generates fees. Every single trade, automatically.</div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="how-step" data-delay="80">
+      <span class="step-num">02</span>
+      <svg class="step-icon" viewBox="0 0 40 40" fill="none">
+        <!-- magnet -->
+        <path d="M10 12 Q10 30 20 30 Q30 30 30 12" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <line x1="10" y1="12" x2="10" y2="6" stroke="#3b6fd4" stroke-width="3" stroke-linecap="round"/>
+        <line x1="30" y1="12" x2="30" y2="6" stroke="#3b6fd4" stroke-width="3" stroke-linecap="round"/>
+        <path d="M14 38 L20 32 L26 38" stroke="#3b6fd4" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="step-title">Bootstrap Captures</div>
+      <div class="step-desc">Fees are pulled in automatically. Nothing leaves the system — ever.</div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="how-step" data-delay="160">
+      <span class="step-num">03</span>
+      <svg class="step-icon" viewBox="0 0 40 40" fill="none">
+        <line x1="20" y1="6" x2="20" y2="34" stroke="#1a1a1a" stroke-width="1.8" stroke-dasharray="3 2" opacity="0.4"/>
+        <text x="4" y="24" font-family="Caveat Brush,cursive" font-size="13" fill="#3b6fd4">50%</text>
+        <text x="22" y="24" font-family="Caveat,cursive" font-size="13" fill="#1a1a1a" opacity="0.7">50%</text>
+        <path d="M10 30 L4 36" stroke="#3b6fd4" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M30 30 L36 36" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" opacity="0.5"/>
+      </svg>
+      <div class="step-title">Fees Split</div>
+      <div class="step-desc">Half goes to buybacks. Half deepens the LP. The split is fixed and automatic.</div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="how-step" data-delay="240">
+      <span class="step-num">04</span>
+      <svg class="step-icon" viewBox="0 0 40 40" fill="none">
+        <rect x="4" y="28" width="7" height="8" rx="1" fill="#3b6fd4" opacity="0.4"/>
+        <rect x="14" y="20" width="7" height="16" rx="1" fill="#3b6fd4" opacity="0.65"/>
+        <rect x="24" y="10" width="7" height="26" rx="1" fill="#3b6fd4"/>
+        <path d="M6 26 L17 18 L27 8" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/>
+      </svg>
+      <div class="step-title">Deeper LP</div>
+      <div class="step-desc">Liquidity grows with every trade. Thicker books mean a more stable price.</div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="how-step" data-delay="320">
+      <span class="step-num">05</span>
+      <svg class="step-icon" viewBox="0 0 40 40" fill="none">
+        <line x1="4" y1="32" x2="36" y2="32" stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M4 28 Q10 16 16 22 Q22 28 28 14 Q32 6 36 10" stroke="#3b6fd4" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+        <polygon points="36,10 40,8 38,14" fill="#3b6fd4"/>
+      </svg>
+      <div class="step-title">Stable Floor</div>
+      <div class="step-desc">A stable floor attracts more traders. More trades mean more fees. The cycle repeats.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Sketch divider -->
+<svg class="sketch-divider" viewBox="0 0 1100 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <path d="M0 12 Q137.5 18 275 12 Q412.5 6 550 12 Q687.5 18 825 12 Q962.5 6 1100 12"
+    stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="8 5" opacity="0.18"/>
+</svg>
+
+<!-- ─── Flywheel ────────────────────────────────────── -->
+<section id="flywheel">
+  <div class="section-label">The Engine</div>
+  <h2 class="section-title">The Self-Running Flywheel</h2>
+  <p class="section-desc">
+    Once it starts spinning, it accelerates itself. No external input required.
+  </p>
+
+  <div class="flywheel-wrap">
+    <!-- Flywheel diagram -->
+    <svg class="flywheel-diagram" viewBox="0 0 420 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer ring -->
+      <circle cx="210" cy="190" r="160" stroke="#1a1a1a" stroke-width="2" stroke-dasharray="10 5" opacity="0.2"/>
+
+      <!-- Inner nodes -->
+      <!-- Trade -->
+      <rect x="155" y="18" width="110" height="48" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4" filter="url(#shadow)"/>
+      <text x="210" y="40" font-family="Caveat Brush,cursive" font-size="15" fill="#1a1a1a" text-anchor="middle">Trade</text>
+      <text x="210" y="56" font-family="Caveat,cursive" font-size="12" fill="#3b6fd4" text-anchor="middle">fees generated</text>
+
+      <!-- Capture -->
+      <rect x="316" y="128" width="96" height="48" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
+      <text x="364" y="150" font-family="Caveat Brush,cursive" font-size="14" fill="#1a1a1a" text-anchor="middle">Capture</text>
+      <text x="364" y="166" font-family="Caveat,cursive" font-size="11" fill="#3b6fd4" text-anchor="middle">auto-locked</text>
+
+      <!-- Split -->
+      <rect x="298" y="268" width="100" height="48" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
+      <text x="348" y="290" font-family="Caveat Brush,cursive" font-size="14" fill="#1a1a1a" text-anchor="middle">Split</text>
+      <text x="348" y="306" font-family="Caveat,cursive" font-size="11" fill="#3b6fd4" text-anchor="middle">buyback + LP</text>
+
+      <!-- Deeper LP -->
+      <rect x="140" y="314" width="110" height="48" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
+      <text x="195" y="336" font-family="Caveat Brush,cursive" font-size="14" fill="#1a1a1a" text-anchor="middle">Deeper LP</text>
+      <text x="195" y="352" font-family="Caveat,cursive" font-size="11" fill="#3b6fd4" text-anchor="middle">stable floor</text>
+
+      <!-- Floor -->
+      <rect x="16" y="268" width="100" height="48" rx="6" stroke="#1a1a1a" stroke-width="2" fill="#e8e2d4"/>
+      <text x="66" y="290" font-family="Caveat Brush,cursive" font-size="14" fill="#1a1a1a" text-anchor="middle">Stable</text>
+      <text x="66" y="306" font-family="Caveat,cursive" font-size="11" fill="#3b6fd4" text-anchor="middle">more traders</text>
+
+      <!-- Arrows between nodes (curved, sketch-style) -->
+      <!-- Trade → Capture -->
+      <path d="M265 50 Q330 60 342 128" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-dasharray="0"/>
+      <polygon points="338,125 350,128 342,138" fill="#3b6fd4"/>
+
+      <!-- Capture → Split -->
+      <path d="M370 176 Q384 230 380 268" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <polygon points="376,265 388,268 378,278" fill="#3b6fd4"/>
+
+      <!-- Split → Deeper LP -->
+      <path d="M298 302 Q256 316 252 314" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <polygon points="255,310 248,320 242,310" fill="#3b6fd4"/>
+
+      <!-- Deeper LP → Stable Floor -->
+      <path d="M140 340 Q100 340 116 292" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <polygon points="112,295 120,285 126,295" fill="#3b6fd4"/>
+
+      <!-- Stable Floor → Trade -->
+      <path d="M62 268 Q50 160 155 50" stroke="#3b6fd4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <polygon points="152,53 158,42 164,53" fill="#3b6fd4"/>
+
+      <!-- Center label -->
+      <circle cx="210" cy="190" r="46" stroke="#3b6fd4" stroke-width="2" stroke-dasharray="6 3" fill="rgba(59,111,212,0.06)"/>
+      <text x="210" y="186" font-family="Caveat Brush,cursive" font-size="16" fill="#3b6fd4" text-anchor="middle">Self</text>
+      <text x="210" y="204" font-family="Caveat Brush,cursive" font-size="16" fill="#3b6fd4" text-anchor="middle">Running</text>
+
+      <!-- Rotating arrow hint -->
+      <path d="M210 144 Q254 144 254 188" stroke="#3b6fd4" stroke-width="1.5" fill="none" opacity="0.35" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Flywheel items list -->
+    <div class="flywheel-text">
+      <div class="flywheel-item" data-delay="0">
+        <div class="flywheel-dot"></div>
+        <div>
+          <div class="flywheel-item-title">Fees never leave</div>
+          <div class="flywheel-item-desc">Every fee generated by every trade stays inside the system. No extraction, no leakage.</div>
+        </div>
+      </div>
+      <div class="flywheel-item" data-delay="80">
+        <div class="flywheel-dot"></div>
+        <div>
+          <div class="flywheel-item-title">Buybacks compress supply</div>
+          <div class="flywheel-item-desc">Half the fees buy back $SRUN from the market, removing supply on every trade.</div>
+        </div>
+      </div>
+      <div class="flywheel-item" data-delay="160">
+        <div class="flywheel-dot"></div>
+        <div>
+          <div class="flywheel-item-title">LP compounds depth</div>
+          <div class="flywheel-item-desc">The other half deepens liquidity, tightening spreads and hardening the price floor.</div>
+        </div>
+      </div>
+      <div class="flywheel-item" data-delay="240">
+        <div class="flywheel-dot"></div>
+        <div>
+          <div class="flywheel-item-title">Floor attracts volume</div>
+          <div class="flywheel-item-desc">A stable, predictable floor brings in traders who trust the mechanics — generating yet more fees.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Sketch divider -->
+<svg class="sketch-divider" viewBox="0 0 1100 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <path d="M0 12 Q137.5 6 275 12 Q412.5 18 550 12 Q687.5 6 825 12 Q962.5 18 1100 12"
+    stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="8 5" opacity="0.18"/>
+</svg>
+
+<!-- ─── Fee Feed ─────────────────────────────────────── -->
+<section id="fee-feed">
+  <div class="feed-header">
+    <div>
+      <div class="section-label">Live Activity</div>
+      <h2 class="section-title" style="margin-bottom:0">Fee Feed</h2>
+    </div>
+    <div class="feed-live">
+      <div class="feed-live-dot"></div>
+      Live
+    </div>
+  </div>
+
+  <div class="feed-box">
+    <!-- Stats row -->
+    <div class="feed-stats">
+      <div class="feed-stat">
+        <div class="feed-stat-label">Total Fees Captured</div>
+        <div class="feed-stat-value blue" id="stat-total">$0</div>
+        <div class="feed-stat-change" id="stat-change">+$0 today</div>
+      </div>
+      <div class="feed-stat">
+        <div class="feed-stat-label">Buybacks Executed</div>
+        <div class="feed-stat-value" id="stat-buybacks">0</div>
+        <div class="feed-stat-change" id="stat-buyback-usd">$0 removed</div>
+      </div>
+      <div class="feed-stat">
+        <div class="feed-stat-label">LP Depth Added</div>
+        <div class="feed-stat-value" id="stat-lp">$0</div>
+        <div class="feed-stat-change" id="stat-lp-change">this session</div>
+      </div>
+    </div>
+
+    <!-- Live event feed -->
+    <div class="feed-list" id="feed-list">
+      <div class="feed-item" style="justify-content:center; color: var(--ink-faint); font-size:1rem; padding:40px;">
+        Waiting for activity...
+      </div>
+    </div>
+
+    <!-- Split visualization -->
+    <div class="split-bar-visual">
+      <div class="split-bar-fill" id="split-bar" style="width:50%"></div>
+      <div class="split-bar-fill-2" style="flex:1"></div>
+    </div>
+
+    <div class="split-bar">
+      <div class="split-half">
+        <div class="split-half-label">Buyback Pool</div>
+        <div class="split-half-value" id="split-buyback-val">$0</div>
+        <div class="split-half-desc">Buying $SRUN from the open market, reducing circulating supply.</div>
+      </div>
+      <div class="split-half">
+        <div class="split-half-label">LP Depth Pool</div>
+        <div class="split-half-value" id="split-lp-val">$0</div>
+        <div class="split-half-desc">Added as liquidity — wider range, tighter floor, more stable price.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Sketch divider -->
+<svg class="sketch-divider" viewBox="0 0 1100 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <path d="M0 12 Q137.5 18 275 12 Q412.5 6 550 12 Q687.5 18 825 12 Q962.5 6 1100 12"
+    stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="8 5" opacity="0.18"/>
+</svg>
+
+<!-- ─── CTA / Contract ───────────────────────────────── -->
+<div class="cta-section" id="contract">
+  <div class="section-label" style="text-align:center">Get In</div>
+  <h2 class="section-title" style="text-align:center; max-width:600px; margin:0 auto 12px;">
+    Join the self-running engine
+  </h2>
+  <p class="section-desc" style="margin:0 auto 0; text-align:center;">
+    The earlier you're in, the more compounding cycles you benefit from.
+  </p>
+  <div style="display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:32px;">
+    <a href="#" class="btn-primary">Buy $SRUN</a>
+    <div class="contract-box">
+      <span class="contract-label">CA</span>
+      <span class="contract-addr" id="ca-addr">0x0000...0000</span>
+      <button class="copy-btn" id="copy-btn" onclick="copyCA()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Footer ───────────────────────────────────────── -->
+<footer>
+  <span>© 2025 Self Runner · All fees stay in the system</span>
+  <span>
+    <a href="#">Twitter / X</a> &nbsp;·&nbsp;
+    <a href="#">Telegram</a> &nbsp;·&nbsp;
+    <a href="#">Docs</a>
+  </span>
+</footer>
+
+<!-- ─── Scripts ──────────────────────────────────────── -->
+<script>
+/* ── Scroll-reveal ─────────────────────────── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const delay = parseInt(e.target.dataset.delay || 0);
+      setTimeout(() => e.target.classList.add('visible'), delay);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.how-step, .flywheel-item').forEach(el => observer.observe(el));
+
+/* ── Live Fee Feed Simulation ──────────────── */
+const eventTypes = [
+  { type: 'Buyback', icon: '↩', color: '#3b6fd4' },
+  { type: 'LP Added', icon: '⬆', color: '#1a1a1a' },
+  { type: 'Fee Captured', icon: '✦', color: '#3b6fd4' },
+  { type: 'Buyback', icon: '↩', color: '#3b6fd4' },
+  { type: 'LP Added', icon: '⬆', color: '#1a1a1a' },
+];
+
+let totalFees = 0, totalBuybacks = 0, buybackCount = 0, lpAdded = 0, todayFees = 0;
+
+function randBetween(a, b) { return Math.random() * (b - a) + a; }
+
+function formatUSD(n) {
+  if (n >= 1000) return '$' + (n/1000).toFixed(2) + 'k';
+  return '$' + n.toFixed(2);
+}
+
+function timeAgo() { return 'just now'; }
+
+function addFeedItem(ev, amount) {
+  const list = document.getElementById('feed-list');
+  // Remove placeholder if present
+  if (list.querySelector('[style*="Waiting"]')) list.innerHTML = '';
+
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.innerHTML = `
+    <div class="feed-item-icon" style="border-color:${ev.color}; color:${ev.color}; font-size:14px;">${ev.icon}</div>
+    <div style="flex:1">
+      <div class="feed-item-type">${ev.type}</div>
+      <div class="feed-item-sub">0x${Math.random().toString(16).slice(2,8)}…${Math.random().toString(16).slice(2,6)}</div>
+    </div>
+    <div class="feed-item-amount" style="color:${ev.color}">${formatUSD(amount)}</div>
+    <div class="feed-item-time">${timeAgo()}</div>
+  `;
+  list.prepend(item);
+
+  // Keep max 20 items
+  while (list.children.length > 20) list.removeChild(list.lastChild);
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = formatUSD(totalFees);
+  document.getElementById('stat-change').textContent = '+' + formatUSD(todayFees) + ' today';
+  document.getElementById('stat-buybacks').textContent = buybackCount;
+  document.getElementById('stat-buyback-usd').textContent = formatUSD(totalBuybacks) + ' removed';
+  document.getElementById('stat-lp').textContent = formatUSD(lpAdded);
+  document.getElementById('split-buyback-val').textContent = formatUSD(totalBuybacks);
+  document.getElementById('split-lp-val').textContent = formatUSD(lpAdded);
+}
+
+function tick() {
+  const fee = randBetween(12, 340);
+  totalFees += fee;
+  todayFees += fee;
+
+  const half = fee / 2;
+  totalBuybacks += half;
+  lpAdded += half;
+
+  const buybackEv = eventTypes[Math.floor(Math.random() * 2)];
+  const isBuyback = Math.random() > 0.4;
+
+  if (isBuyback) {
+    buybackCount++;
+    addFeedItem({ type: 'Buyback', icon: '↩', color: '#3b6fd4' }, half);
+  } else {
+    addFeedItem({ type: 'LP Added', icon: '⬆', color: '#1a1a1a' }, half);
+  }
+
+  // Occasionally show fee capture event too
+  if (Math.random() > 0.6) {
+    setTimeout(() => {
+      addFeedItem({ type: 'Fee Captured', icon: '✦', color: '#3b6fd4' }, fee);
+      updateStats();
+    }, 600);
+  }
+
+  updateStats();
+}
+
+// Seed with some initial data
+for (let i = 0; i < 5; i++) tick();
+
+// Keep ticking
+setInterval(tick, randBetween(2200, 5000));
+
+/* ── Copy CA ───────────────────────────────── */
+function copyCA() {
+  const addr = document.getElementById('ca-addr').textContent;
+  navigator.clipboard.writeText(addr).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1800);
+  });
+}
+
+/* ── Randomize tick interval ───────────────── */
+(function scheduleNext() {
+  setTimeout(() => {
+    tick();
+    scheduleNext();
+  }, randBetween(1800, 6000));
+})();
+</script>
+</body>
+</html>
