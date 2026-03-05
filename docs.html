@@ -521,8 +521,8 @@
       <a href="#lp-depth" class="sidebar-link">LP Depth</a>
     </div>
     <div class="sidebar-section">
-      <div class="sidebar-heading">Bootstrap Protocol</div>
-      <a href="#bootstrap" class="sidebar-link">What is Bootstrap</a>
+      <div class="sidebar-heading">Self Runner Protocol</div>
+      <a href="#bootstrap" class="sidebar-link">What is Self Runner Engine</a>
       <a href="#bootstrap-routing" class="sidebar-link">Fee Routing</a>
       <a href="#bootstrap-security" class="sidebar-link">Security Model</a>
     </div>
@@ -544,7 +544,7 @@
 
     <div class="page-title">Technical Documentation</div>
     <p class="page-subtitle">
-      Everything you need to understand how Self Runner works at a protocol level — fee capture, LP routing, and the Bootstrap infrastructure beneath it all.
+      Everything you need to understand how Self Runner works at a protocol level — fee capture, LP routing, and the Self Runner engine beneath it all.
     </p>
 
     <!-- Overview -->
@@ -553,7 +553,7 @@
       <div class="doc-section-title">Overview</div>
 
       <p>
-        Self Runner is an autonomous on-chain fee engine built on top of the <strong>Bootstrap liquidity protocol</strong>. Every trade that occurs against the Self Runner liquidity pool generates fees. Those fees are captured at the protocol level — before they can be distributed — and automatically routed 100% into LP depth every 30 minutes.
+        Self Runner is an autonomous on-chain fee engine built on top of the <strong>Self Runner protocol</strong>. Every trade that occurs against the Self Runner liquidity pool generates fees. Those fees are captured at the protocol level — before they can be distributed — and automatically routed 100% into LP depth every 30 minutes.
       </p>
       <p>
         The result is a system that compounds on itself. More trades → more fees → deeper liquidity and supply compression → more stable floor → more trades.
@@ -561,13 +561,13 @@
 
       <div class="callout blue">
         <div class="callout-title">&#x2139; No manual intervention</div>
-        All fee routing and LP additions happen autonomously via Bootstrap's on-chain infrastructure. There is no admin key, no multisig, and no team wallet in the fee flow.
+        All fee routing and LP additions happen autonomously via Self Runner's on-chain infrastructure. There is no admin key, no multisig, and no team wallet in the fee flow.
       </div>
 
       <h3>Design Goals</h3>
       <ul class="doc-list">
         <li><strong>Self-sustaining:</strong> The system requires no external capital injection after launch. Fees from trading provide all the fuel.</li>
-        <li><strong>Non-extractable:</strong> Fees captured by Bootstrap cannot be redirected to team wallets or external addresses. The routing is fixed at the contract level.</li>
+        <li><strong>Non-extractable:</strong> Fees captured by Self Runner cannot be redirected to team wallets or external addresses. The routing is fixed at the contract level.</li>
         <li><strong>Compounding:</strong> Each cycle deepens liquidity, which reduces slippage, which attracts more volume, which generates more fees.</li>
         <li><strong>Transparent:</strong> All fee flows and LP additions are visible on-chain and reflected in the live fee feed.</li>
       </ul>
@@ -579,7 +579,7 @@
       <div class="doc-section-title">Architecture</div>
 
       <p>
-        The system consists of three interacting layers: the AMM pool, the Bootstrap fee interceptor, and the LP depth router.
+        The system consists of three interacting layers: the AMM pool, the Self Runner fee interceptor, and the LP depth router.
       </p>
 
       <pre><code><span class="c">┌─────────────────────────────────────────────────┐</span>
@@ -589,7 +589,7 @@
                      <span class="c">│ swap fees generated</span>
                      ▼
 <span class="c">┌─────────────────────────────────────────────────┐</span>
-<span class="c">│           Bootstrap Fee Interceptor             │</span>
+<span class="c">│           Self Runner Fee Interceptor             │</span>
 <span class="c">│    captures fees before any distribution        │</span>
 <span class="c">└────────────────────┬────────────────────────────┘</span>
                      <span class="c">│ 100% of fees</span>
@@ -606,8 +606,8 @@
           <thead><tr><th>Component</th><th>Role</th><th>Controlled by</th></tr></thead>
           <tbody>
             <tr><td><code>AMM Pool</code></td><td>Handles all $RUN swaps, generates swap fees on every trade</td><td>Permissionless</td></tr>
-            <tr><td><code>Bootstrap Interceptor</code></td><td>Hooks into fee distribution, captures before payout</td><td>Bootstrap Protocol</td></tr>
-            <tr><td><code>LP Router</code></td><td>Routes 100% of captured fees into LP depth — pairs and mints liquidity positions</td><td>Bootstrap Protocol</td></tr>
+            <tr><td><code>Self Runner Interceptor</code></td><td>Hooks into fee distribution, captures before payout</td><td>Self Runner Protocol</td></tr>
+            <tr><td><code>LP Router</code></td><td>Routes 100% of captured fees into LP depth — pairs and mints liquidity positions</td><td>Self Runner Protocol</td></tr>
           </tbody>
         </table>
       </div>
@@ -619,15 +619,15 @@
       <div class="doc-section-title">Fee Capture</div>
 
       <p>
-        When a swap occurs in the $RUN AMM pool, the pool charges a fee on the input token. Under a standard AMM, this fee would be distributed to liquidity providers. Bootstrap intercepts this distribution at the protocol layer.
+        When a swap occurs in the $RUN AMM pool, the pool charges a fee on the input token. Under a standard AMM, this fee would be distributed to liquidity providers. Self Runner intercepts this distribution at the protocol layer.
       </p>
 
       <h3>How interception works</h3>
       <p>
-        Bootstrap registers itself as the fee recipient on pool deployment. Instead of sending fees to LP holders directly, the pool routes all fee accrual to Bootstrap's <code>FeeVault</code> contract. The vault is non-custodial — no address can withdraw from it except the Bootstrap routing contracts.
+        Self Runner registers itself as the fee recipient on pool deployment. Instead of sending fees to LP holders directly, the pool routes all fee accrual to Self Runner's <code>FeeVault</code> contract. The vault is non-custodial — no address can withdraw from it except the Self Runner routing contracts.
       </p>
 
-      <pre><code><span class="c">// Simplified Bootstrap fee vault interface</span>
+      <pre><code><span class="c">// Simplified Self Runner fee vault interface</span>
 <span class="k">interface</span> <span class="n">IFeeVault {</span>
   <span class="c">// Called by pool on every swap</span>
   <span class="k">function</span> <span class="n">receiveFees(</span>
@@ -646,7 +646,7 @@
 
       <h3>Trigger conditions</h3>
       <p>
-        Fee routing can be triggered by anyone calling <code>routeToLP()</code> on the vault — it is a public, permissionless function. In practice, Bootstrap's off-chain keeper calls it automatically every 30 minutes, flushing 100% of accumulated fees into the LP.
+        Fee routing can be triggered by anyone calling <code>routeToLP()</code> on the vault — it is a public, permissionless function. In practice, Self Runner's off-chain keeper calls it automatically every 30 minutes, flushing 100% of accumulated fees into the LP.
       </p>
     </div>
 
@@ -699,19 +699,19 @@
 
     <!-- Bootstrap -->
     <div class="doc-section" id="bootstrap">
-      <div class="doc-section-label">Bootstrap Protocol</div>
-      <div class="doc-section-title">What is Bootstrap</div>
+      <div class="doc-section-label">Self Runner Protocol</div>
+      <div class="doc-section-title">What is Self Runner Engine</div>
 
       <p>
-        <a href="https://www.bootstrapliq.fun/" target="_blank" style="color:var(--blue)">Bootstrap</a> is the on-chain liquidity infrastructure that powers Self Runner. It provides the smart contract primitives for fee interception, non-extractable vaults, autonomous routing, and protocol-owned liquidity management.
+        The Self Runner Engine is the on-chain liquidity infrastructure built by the Self Runner team. It provides the smart contract primitives for fee interception, non-extractable vaults, autonomous routing, and protocol-owned liquidity management.
       </p>
       <p>
-        Self Runner is built as a deployment on top of Bootstrap — it uses Bootstrap's contracts with configuration parameters specific to $RUN's tokenomics.
+        Every token launched through Self Runner uses these contracts with configuration parameters specific to that token's setup.
       </p>
 
       <div class="doc-table-wrap">
         <table class="doc-table">
-          <thead><tr><th>Bootstrap Primitive</th><th>Used by Self Runner for</th></tr></thead>
+          <thead><tr><th>Self Runner Primitive</th><th>Used by Self Runner for</th></tr></thead>
           <tbody>
             <tr><td><code>FeeVault</code></td><td>Capturing and holding all trading fees from the $RUN pool</td></tr>
             <tr><td><code>LPRouter</code></td><td>Routes 100% of captured fees into LP depth additions</td></tr>
@@ -724,11 +724,11 @@
 
     <!-- Bootstrap Routing -->
     <div class="doc-section" id="bootstrap-routing">
-      <div class="doc-section-label">Bootstrap Protocol</div>
+      <div class="doc-section-label">Self Runner Protocol</div>
       <div class="doc-section-title">Fee Routing</div>
 
       <p>
-        Bootstrap's fee routing follows a strict on-chain path. No off-chain component has the ability to redirect fees — the keeper can only trigger routing, not modify its destination.
+        Self Runner's fee routing follows a strict on-chain path. No off-chain component has the ability to redirect fees — the keeper can only trigger routing, not modify its destination.
       </p>
 
       <div class="flow-steps">
@@ -743,14 +743,14 @@
           <div class="flow-num">2</div>
           <div class="flow-body">
             <div class="flow-title">Vault accumulates</div>
-            <p class="flow-desc">Fees accumulate in the FeeVault. Every 30 minutes, Bootstrap's keeper (or anyone) calls <code>routeToLP()</code> to flush the full balance into the LP.</p>
+            <p class="flow-desc">Fees accumulate in the FeeVault. Every 30 minutes, Self Runner's keeper (or anyone) calls <code>routeToLP()</code> to flush the full balance into the LP.</p>
           </div>
         </div>
         <div class="flow-step">
           <div class="flow-num">3</div>
           <div class="flow-body">
             <div class="flow-title">Keeper triggers routing</div>
-            <p class="flow-desc">Bootstrap's keeper fires every 30 minutes and calls <code>routeToLP()</code>. The call is permissionless — anyone can trigger it ahead of schedule if desired.</p>
+            <p class="flow-desc">Self Runner's keeper fires every 30 minutes and calls <code>routeToLP()</code>. The call is permissionless — anyone can trigger it ahead of schedule if desired.</p>
           </div>
         </div>
         <div class="flow-step">
@@ -772,11 +772,11 @@
 
     <!-- Bootstrap Security -->
     <div class="doc-section" id="bootstrap-security">
-      <div class="doc-section-label">Bootstrap Protocol</div>
+      <div class="doc-section-label">Self Runner Protocol</div>
       <div class="doc-section-title">Security Model</div>
 
       <p>
-        Bootstrap's contracts are designed with a minimal attack surface. The key security properties relevant to Self Runner:
+        Self Runner's contracts are designed with a minimal attack surface. The key security properties relevant to Self Runner:
       </p>
 
       <h3>No admin withdrawal</h3>
@@ -786,7 +786,7 @@
 
       <h3>No upgradeable proxies</h3>
       <p>
-        Bootstrap's core contracts (FeeVault, LPRouter, LPManager) are deployed as non-upgradeable implementations. There is no <code>upgradeTo()</code> function, no proxy admin, and no way to change the contract logic post-deployment.
+        Self Runner's core contracts (FeeVault, LPRouter, LPManager) are deployed as non-upgradeable implementations. There is no <code>upgradeTo()</code> function, no proxy admin, and no way to change the contract logic post-deployment.
       </p>
 
       <h3>No owner privileges on fee flow</h3>
@@ -796,12 +796,12 @@
 
       <div class="callout green">
         <div class="callout-title">&#x2713; Trust assumptions</div>
-        You only need to trust the Bootstrap contract code — not the Self Runner team, not any multisig, and not any off-chain keeper. The keeper can trigger routing but cannot alter where funds go.
+        You only need to trust the Self Runner contract code — not the Self Runner team, not any multisig, and not any off-chain keeper. The keeper can trigger routing but cannot alter where funds go.
       </div>
 
       <h3>Reentrancy</h3>
       <p>
-        All Bootstrap contracts use the checks-effects-interactions pattern and include reentrancy guards on all external-call-bearing functions. Fee vault state is updated before any token transfers occur.
+        All Self Runner contracts use the checks-effects-interactions pattern and include reentrancy guards on all external-call-bearing functions. Fee vault state is updated before any token transfers occur.
       </p>
     </div>
 
@@ -822,7 +822,7 @@
             <tr><td>Symbol</td><td>$RUN</td></tr>
             <tr><td>Contract (Solana)</td><td><code>TBA</code> <span class="tag tag-ink">TBA</span></td></tr>
             <tr><td>Supply</td><td>Fixed at launch, no mint function</td></tr>
-            <tr><td>Tax / Transfer fee</td><td>None — all fees are AMM swap fees via Bootstrap</td></tr>
+            <tr><td>Tax / Transfer fee</td><td>None — all fees are AMM swap fees via Self Runner</td></tr>
             <tr><td>Ownership</td><td>Renounced post-deployment</td></tr>
           </tbody>
         </table>
@@ -875,13 +875,13 @@
           <div class="flow-num">1</div>
           <div class="flow-body">
             <div class="flow-title">Trade happens</div>
-            <p class="flow-desc">A user swaps against the $RUN AMM pool. The pool charges a swap fee (e.g. 1%) on the input amount. Bootstrap captures this fee into the FeeVault.</p>
+            <p class="flow-desc">A user swaps against the $RUN AMM pool. The pool charges a swap fee (e.g. 1%) on the input amount. Self Runner captures this fee into the FeeVault.</p>
           </div>
         </div>
         <div class="flow-step">
           <div class="flow-num">2</div>
           <div class="flow-body">
-            <div class="flow-title">Bootstrap captures fees automatically</div>
+            <div class="flow-title">Self Runner captures fees automatically</div>
             <p class="flow-desc">The FeeVault accumulates fees from every trade. No distribution to LPs occurs. Nothing leaves the system.</p>
           </div>
         </div>
@@ -914,7 +914,7 @@
       <div class="doc-section-label">Reference</div>
       <div class="doc-section-title">Parameters</div>
 
-      <p>The key parameters governing Self Runner's behavior via Bootstrap:</p>
+      <p>The key parameters governing Self Runner's behavior via Self Runner:</p>
 
       <div class="doc-table-wrap">
         <table class="doc-table">
@@ -932,7 +932,7 @@
 
       <div class="callout">
         <div class="callout-title">&#x26A0; Immutable core parameters</div>
-        All parameters marked "No" are encoded in the deployed bytecode. They cannot be changed by any address — not the deployer, not Bootstrap, not a DAO vote.
+        All parameters marked "No" are encoded in the deployed bytecode. They cannot be changed by any address — not the deployer, not Self Runner, not a DAO vote.
       </div>
     </div>
 
@@ -943,7 +943,7 @@
 
       <h3>Can the team take the fees?</h3>
       <p>
-        No. Fees enter the Bootstrap FeeVault which has no withdrawal function accessible to any EOA. The only exit is through the SplitRouter into buybacks and LP. The team has no privileged access to the fee flow.
+        No. Fees enter the Self Runner FeeVault which has no withdrawal function accessible to any EOA. The only exit is through the LP Router. The team has no privileged access to the fee flow.
       </p>
 
       <h3>What happens if no one trades?</h3>
@@ -953,12 +953,12 @@
 
       <h3>Can the LP be removed?</h3>
       <p>
-        Protocol-owned LP positions minted by Bootstrap's LPManager have no withdrawal function. They are permanently locked in the pool. This means liquidity can only grow over time, never decrease through protocol actions.
+        Protocol-owned LP positions minted by Self Runner's LPManager have no withdrawal function. They are permanently locked in the pool. This means liquidity can only grow over time, never decrease through protocol actions.
       </p>
 
-      <h3>Is Bootstrap audited?</h3>
+      <h3>Is Self Runner audited?</h3>
       <p>
-        Refer to the <a href="https://www.bootstrapliq.fun/" target="_blank" style="color:var(--blue)">Bootstrap documentation</a> for audit status and reports.
+        Audit details will be published before mainnet contract deployment. Follow the <a href="https://x.com/i/communities/2029489835673547245" target="_blank" style="color:var(--blue)">X Community</a> for updates.
       </p>
 
       <h3>What chain is Self Runner on?</h3>
@@ -968,7 +968,7 @@
 
       <h3>Who can trigger fee routing?</h3>
       <p>
-        Anyone. <code>routeToSplit()</code> is a public permissionless function. Bootstrap's keeper calls it automatically, but any wallet can call it manually at any time. Triggering it early just processes whatever fees have accumulated up to that point.
+        Anyone. <code>routeToSplit()</code> is a public permissionless function. Self Runner's keeper calls it automatically, but any wallet can call it manually at any time. Triggering it early just processes whatever fees have accumulated up to that point.
       </p>
     </div>
 
@@ -979,7 +979,6 @@
   <span>© 2025 Self Runner · All fees stay in the system</span>
   <span>
     <a href="https://x.com/i/communities/2029489835673547245" target="_blank" style="color:var(--ink-light);text-decoration:none;">X Community</a> &nbsp;·&nbsp;
-    <a href="https://www.bootstrapliq.fun/" target="_blank" style="color:var(--ink-light);text-decoration:none;">Bootstrap</a> &nbsp;·&nbsp;
     <a href="launch.html" style="color:var(--ink-light);text-decoration:none;">Launch</a> &nbsp;·&nbsp;
     <a href="docs.html" style="color:var(--ink-light);text-decoration:none;">Docs</a>
   </span>
