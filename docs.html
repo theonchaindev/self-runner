@@ -501,7 +501,7 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
       Community
     </a>
-    <a href="index.html#contract" class="nav-cta">Buy $SRUN</a>
+    <a href="index.html#contract" class="nav-cta">Buy $RUN</a>
   </div>
 </nav>
 
@@ -527,7 +527,7 @@
     </div>
     <div class="sidebar-section">
       <div class="sidebar-heading">Token</div>
-      <a href="#token" class="sidebar-link">$SRUN Token</a>
+      <a href="#token" class="sidebar-link">$RUN Token</a>
       <a href="#floor" class="sidebar-link">Floor Mechanics</a>
       <a href="#flywheel" class="sidebar-link">Flywheel Loop</a>
     </div>
@@ -583,7 +583,7 @@
 
       <pre><code><span class="c">┌─────────────────────────────────────────────────┐</span>
 <span class="c">│               AMM Liquidity Pool                │</span>
-<span class="c">│         (where $SRUN trades happen)             │</span>
+<span class="c">│         (where $RUN trades happen)             │</span>
 <span class="c">└────────────────────┬────────────────────────────┘</span>
                      <span class="c">│ swap fees generated</span>
                      ▼
@@ -604,7 +604,7 @@
         <table class="doc-table">
           <thead><tr><th>Component</th><th>Role</th><th>Controlled by</th></tr></thead>
           <tbody>
-            <tr><td><code>AMM Pool</code></td><td>Handles all $SRUN swaps, generates swap fees on every trade</td><td>Permissionless</td></tr>
+            <tr><td><code>AMM Pool</code></td><td>Handles all $RUN swaps, generates swap fees on every trade</td><td>Permissionless</td></tr>
             <tr><td><code>Bootstrap Interceptor</code></td><td>Hooks into fee distribution, captures before payout</td><td>Bootstrap Protocol</td></tr>
             <tr><td><code>LP Router</code></td><td>Routes 100% of captured fees into LP depth — pairs and mints liquidity positions</td><td>Bootstrap Protocol</td></tr>
           </tbody>
@@ -618,7 +618,7 @@
       <div class="doc-section-title">Fee Capture</div>
 
       <p>
-        When a swap occurs in the $SRUN AMM pool, the pool charges a fee on the input token. Under a standard AMM, this fee would be distributed to liquidity providers. Bootstrap intercepts this distribution at the protocol layer.
+        When a swap occurs in the $RUN AMM pool, the pool charges a fee on the input token. Under a standard AMM, this fee would be distributed to liquidity providers. Bootstrap intercepts this distribution at the protocol layer.
       </p>
 
       <h3>How interception works</h3>
@@ -666,14 +666,14 @@
 
       <h3>How liquidity is added</h3>
       <p>
-        The fee allocation arrives as the quote token. To add balanced liquidity, the router uses half of it to buy $SRUN (at spot), then pairs both tokens and mints a new LP position in a range centered around the current price.
+        The fee allocation arrives as the quote token. To add balanced liquidity, the router uses half of it to buy $RUN (at spot), then pairs both tokens and mints a new LP position in a range centered around the current price.
       </p>
 
       <pre><code><span class="c">// LP addition logic (simplified)</span>
 <span class="c">// 100% of allocation goes to LP — no split</span>
 <span class="k">uint256</span> <span class="n">halfFees = allocation / </span><span class="s">2</span><span class="n">;</span>
 
-<span class="c">// Buy $SRUN with half to create a balanced pair</span>
+<span class="c">// Buy $RUN with half to create a balanced pair</span>
 <span class="k">uint256</span> <span class="n">srunAcquired = swap(quoteToken, srun, halfFees);</span>
 
 <span class="c">// Add paired liquidity around current tick</span>
@@ -705,16 +705,16 @@
         <a href="https://www.bootstrapliq.fun/" target="_blank" style="color:var(--blue)">Bootstrap</a> is the on-chain liquidity infrastructure that powers Self Runner. It provides the smart contract primitives for fee interception, non-extractable vaults, autonomous routing, and protocol-owned liquidity management.
       </p>
       <p>
-        Self Runner is built as a deployment on top of Bootstrap — it uses Bootstrap's contracts with configuration parameters specific to $SRUN's tokenomics.
+        Self Runner is built as a deployment on top of Bootstrap — it uses Bootstrap's contracts with configuration parameters specific to $RUN's tokenomics.
       </p>
 
       <div class="doc-table-wrap">
         <table class="doc-table">
           <thead><tr><th>Bootstrap Primitive</th><th>Used by Self Runner for</th></tr></thead>
           <tbody>
-            <tr><td><code>FeeVault</code></td><td>Capturing and holding all trading fees from the $SRUN pool</td></tr>
+            <tr><td><code>FeeVault</code></td><td>Capturing and holding all trading fees from the $RUN pool</td></tr>
             <tr><td><code>LPRouter</code></td><td>Routes 100% of captured fees into LP depth additions</td></tr>
-            <tr><td><code>LPManager</code></td><td>Concentrated liquidity additions to the $SRUN pool</td></tr>
+            <tr><td><code>LPManager</code></td><td>Concentrated liquidity additions to the $RUN pool</td></tr>
             <tr><td><code>Keeper</code></td><td>Off-chain trigger for fee routing at accumulation thresholds</td></tr>
           </tbody>
         </table>
@@ -735,7 +735,7 @@
           <div class="flow-num">1</div>
           <div class="flow-body">
             <div class="flow-title">Swap occurs in AMM pool</div>
-            <p class="flow-desc">Any trade against the $SRUN pool generates a fee. The pool calls <code>FeeVault.receiveFees()</code> instead of distributing to LPs.</p>
+            <p class="flow-desc">Any trade against the $RUN pool generates a fee. The pool calls <code>FeeVault.receiveFees()</code> instead of distributing to LPs.</p>
           </div>
         </div>
         <div class="flow-step">
@@ -807,10 +807,10 @@
     <!-- Token -->
     <div class="doc-section" id="token">
       <div class="doc-section-label">Token</div>
-      <div class="doc-section-title">$SRUN Token</div>
+      <div class="doc-section-title">$RUN Token</div>
 
       <p>
-        $SRUN is the native token of the Self Runner system. It is a standard ERC-20 (or SPL on Solana) token with no mint function beyond the initial supply and no special transfer hooks.
+        $RUN is the native token of the Self Runner system. It is a standard ERC-20 (or SPL on Solana) token with no mint function beyond the initial supply and no special transfer hooks.
       </p>
 
       <div class="doc-table-wrap">
@@ -818,7 +818,7 @@
           <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
           <tbody>
             <tr><td>Name</td><td>Self Runner</td></tr>
-            <tr><td>Symbol</td><td>$SRUN</td></tr>
+            <tr><td>Symbol</td><td>$RUN</td></tr>
             <tr><td>Contract (Solana)</td><td><code>TBA</code> <span class="tag tag-ink">TBA</span></td></tr>
             <tr><td>Supply</td><td>Fixed at launch, no mint function</td></tr>
             <tr><td>Tax / Transfer fee</td><td>None — all fees are AMM swap fees via Bootstrap</td></tr>
@@ -829,7 +829,7 @@
 
       <h3>No transfer tax</h3>
       <p>
-        $SRUN does not use a transfer tax or fee-on-transfer mechanism. All fee generation happens at the AMM pool level through standard swap fees — not on token transfers. This makes $SRUN compatible with all standard DeFi tooling without special handling.
+        $RUN does not use a transfer tax or fee-on-transfer mechanism. All fee generation happens at the AMM pool level through standard swap fees — not on token transfers. This makes $RUN compatible with all standard DeFi tooling without special handling.
       </p>
     </div>
 
@@ -874,7 +874,7 @@
           <div class="flow-num">1</div>
           <div class="flow-body">
             <div class="flow-title">Trade happens</div>
-            <p class="flow-desc">A user swaps against the $SRUN AMM pool. The pool charges a swap fee (e.g. 1%) on the input amount. Bootstrap captures this fee into the FeeVault.</p>
+            <p class="flow-desc">A user swaps against the $RUN AMM pool. The pool charges a swap fee (e.g. 1%) on the input amount. Bootstrap captures this fee into the FeeVault.</p>
           </div>
         </div>
         <div class="flow-step">
