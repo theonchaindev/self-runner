@@ -1201,51 +1201,21 @@
       <div class="section-label">Live Activity</div>
       <h2 class="section-title" style="margin-bottom:0">Fee Feed</h2>
     </div>
-    <div class="feed-live">
-      <div class="feed-live-dot"></div>
-      Live
+    <div class="feed-live" style="background:var(--paper-dark); color:var(--ink-light); border-color:rgba(26,26,26,0.3);">
+      <div class="feed-live-dot" style="background:#aaa; box-shadow:none;"></div>
+      Coming Soon
     </div>
   </div>
 
-  <div class="feed-box">
-    <!-- Stats row -->
-    <div class="feed-stats">
-      <div class="feed-stat">
-        <div class="feed-stat-label">Total Fees Captured</div>
-        <div class="feed-stat-value blue" id="stat-total">$0</div>
-        <div class="feed-stat-change" id="stat-change">+$0 today</div>
-      </div>
-      <div class="feed-stat">
-        <div class="feed-stat-label">LP Depth Added</div>
-        <div class="feed-stat-value blue" id="stat-lp">$0</div>
-        <div class="feed-stat-change">100% of all fees</div>
-      </div>
-      <div class="feed-stat">
-        <div class="feed-stat-label">Fee → LP Events</div>
-        <div class="feed-stat-value" id="stat-buybacks">0</div>
-        <div class="feed-stat-change">this session</div>
-      </div>
-    </div>
-
-    <!-- Live event feed -->
-    <div class="feed-list" id="feed-list">
-      <div class="feed-item" style="justify-content:center; color: var(--ink-faint); font-size:1rem; padding:40px;">
-        Waiting for activity...
-      </div>
-    </div>
-
-    <!-- LP visualization -->
-    <div class="split-bar-visual">
-      <div class="split-bar-fill" style="width:100%; border-radius:6px;"></div>
-    </div>
-
-    <div class="split-bar">
-      <div class="split-half" style="flex:1; border-right:none;">
-        <div class="split-half-label">LP Depth Pool — <strong>100% of all fees</strong></div>
-        <div class="split-half-value blue" id="split-lp-val">$0</div>
-        <div class="split-half-desc">Every fee captured goes entirely into the liquidity pool — no split, no buyback diversion. Deeper LP means tighter spreads, a harder floor, and more stable price action.</div>
-      </div>
-    </div>
+  <div class="feed-box" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;text-align:center;min-height:260px;">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px;opacity:0.35;">
+      <circle cx="24" cy="24" r="20" stroke="#1a1a1a" stroke-width="2" stroke-dasharray="6 4"/>
+      <path d="M24 14 L24 26 L32 30" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div style="font-family:var(--font-brush);font-size:1.8rem;color:var(--ink);margin-bottom:10px;">Live Feed Coming Soon</div>
+    <p style="font-family:var(--font);font-size:1.05rem;color:var(--ink-light);max-width:420px;line-height:1.6;">
+      The live fee feed will go live at launch. Every LP addition and fee capture will stream here in real time — on-chain, transparent, unstoppable.
+    </p>
   </div>
 </section>
 
@@ -1267,8 +1237,8 @@
   <div style="display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:32px;">
     <a href="#" class="btn-primary">Buy $SRUN</a>
     <div class="contract-box">
-      <span class="contract-label">CA</span>
-      <span class="contract-addr" id="ca-addr">0x0000...0000</span>
+      <span class="contract-label">SOL</span>
+      <span class="contract-addr" id="ca-addr">TBA</span>
       <button class="copy-btn" id="copy-btn" onclick="copyCA()">Copy</button>
     </div>
   </div>
@@ -1306,99 +1276,16 @@ const observer = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.how-step, .flywheel-item').forEach(el => observer.observe(el));
 
-/* ── Live Fee Feed Simulation ──────────────── */
-const eventTypes = [
-  { type: 'LP Added', icon: '⬆', color: '#3b6fd4' },
-  { type: 'Fee Captured', icon: '✦', color: '#3b6fd4' },
-  { type: 'LP Added', icon: '⬆', color: '#3b6fd4' },
-  { type: 'Fee → LP', icon: '→', color: '#3b6fd4' },
-  { type: 'LP Added', icon: '⬆', color: '#3b6fd4' },
-];
-
-let totalFees = 0, buybackCount = 0, lpAdded = 0, todayFees = 0;
-
-function randBetween(a, b) { return Math.random() * (b - a) + a; }
-
-function formatUSD(n) {
-  if (n >= 1000) return '$' + (n/1000).toFixed(2) + 'k';
-  return '$' + n.toFixed(2);
-}
-
-function timeAgo() { return 'just now'; }
-
-function addFeedItem(ev, amount) {
-  const list = document.getElementById('feed-list');
-  // Remove placeholder if present
-  if (list.querySelector('[style*="Waiting"]')) list.innerHTML = '';
-
-  const item = document.createElement('div');
-  item.className = 'feed-item';
-  item.innerHTML = `
-    <div class="feed-item-icon" style="border-color:${ev.color}; color:${ev.color}; font-size:14px;">${ev.icon}</div>
-    <div style="flex:1">
-      <div class="feed-item-type">${ev.type}</div>
-      <div class="feed-item-sub">0x${Math.random().toString(16).slice(2,8)}…${Math.random().toString(16).slice(2,6)}</div>
-    </div>
-    <div class="feed-item-amount" style="color:${ev.color}">${formatUSD(amount)}</div>
-    <div class="feed-item-time">${timeAgo()}</div>
-  `;
-  list.prepend(item);
-
-  // Keep max 20 items
-  while (list.children.length > 20) list.removeChild(list.lastChild);
-}
-
-function updateStats() {
-  document.getElementById('stat-total').textContent = formatUSD(totalFees);
-  document.getElementById('stat-change').textContent = '+' + formatUSD(todayFees) + ' today';
-  document.getElementById('stat-buybacks').textContent = buybackCount;
-  document.getElementById('stat-lp').textContent = formatUSD(lpAdded);
-  document.getElementById('split-lp-val').textContent = formatUSD(lpAdded);
-}
-
-function tick() {
-  const fee = randBetween(12, 340);
-  totalFees += fee;
-  todayFees += fee;
-  lpAdded += fee;
-  buybackCount++;
-
-  addFeedItem({ type: 'LP Added', icon: '⬆', color: '#3b6fd4' }, fee);
-
-  // Occasionally show fee capture event too
-  if (Math.random() > 0.6) {
-    setTimeout(() => {
-      addFeedItem({ type: 'Fee Captured', icon: '✦', color: '#3b6fd4' }, fee);
-      updateStats();
-    }, 600);
-  }
-
-  updateStats();
-}
-
-// Seed with some initial data
-for (let i = 0; i < 5; i++) tick();
-
-// Keep ticking
-setInterval(tick, randBetween(2200, 5000));
-
 /* ── Copy CA ───────────────────────────────── */
 function copyCA() {
   const addr = document.getElementById('ca-addr').textContent;
+  if (addr === 'TBA') return;
   navigator.clipboard.writeText(addr).then(() => {
     const btn = document.getElementById('copy-btn');
     btn.textContent = 'Copied!';
     setTimeout(() => btn.textContent = 'Copy', 1800);
   });
 }
-
-/* ── Randomize tick interval ───────────────── */
-(function scheduleNext() {
-  setTimeout(() => {
-    tick();
-    scheduleNext();
-  }, randBetween(1800, 6000));
-})();
 </script>
 </body>
 </html>

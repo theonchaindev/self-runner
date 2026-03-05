@@ -61,34 +61,67 @@
 
   .nav-logo {
     font-family: var(--font-brush);
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     color: var(--ink);
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
 
-  .nav-logo span { color: var(--blue); }
+  .nav-logo-icon { width: 36px; height: 36px; }
 
-  .nav-right {
+  .nav-links {
     display: flex;
+    list-style: none;
+    gap: 28px;
     align-items: center;
-    gap: 20px;
   }
 
-  .nav-right a {
+  .nav-links a {
     font-family: var(--font);
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 600;
     color: var(--ink-light);
     text-decoration: none;
+    position: relative;
     transition: color 0.15s;
   }
 
-  .nav-right a:hover { color: var(--blue); }
+  .nav-links a:hover { color: var(--blue); }
 
-  .nav-right a.active { color: var(--blue); }
+  .nav-community {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink-light);
+    text-decoration: none;
+    border: 1.5px solid rgba(26,26,26,0.3);
+    border-radius: 100px;
+    padding: 6px 14px;
+    transition: all 0.15s;
+  }
+
+  .nav-community:hover { color: var(--blue); border-color: var(--blue); }
+
+  .nav-cta {
+    font-family: var(--font-brush);
+    font-size: 1.1rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    padding: 8px 20px;
+    text-decoration: none;
+    box-shadow: 3px 3px 0 var(--blue);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .nav-cta:hover { box-shadow: 5px 5px 0 var(--blue); transform: translate(-1px,-1px); }
 
   /* ─── Layout ──────────────────────── */
   .docs-layout {
@@ -453,11 +486,22 @@
 <body>
 
 <nav>
-  <a href="index.html" class="nav-logo">Self Runner <span>·</span> Docs</a>
-  <div class="nav-right">
-    <a href="index.html">Home</a>
-    <a href="https://x.com/i/communities/2029489835673547245" target="_blank">X Community</a>
-    <a href="https://www.bootstrapliq.fun/" target="_blank">Bootstrap</a>
+  <a href="index.html" class="nav-logo">
+    <img src="runner.png" class="nav-logo-icon" alt="Self Runner" style="height:36px;width:auto;object-fit:contain;" />
+    SELF RUNNER
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html#how-it-works">How It Works</a></li>
+    <li><a href="index.html#fee-feed">Fee Feed</a></li>
+    <li><a href="index.html#flywheel">Flywheel</a></li>
+    <li><a href="docs.html" style="color:var(--blue);">Docs</a></li>
+  </ul>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <a href="https://x.com/i/communities/2029489835673547245" target="_blank" class="nav-community" title="X Community">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Community
+    </a>
+    <a href="index.html#contract" class="nav-cta">Buy $SRUN</a>
   </div>
 </nav>
 
@@ -775,7 +819,7 @@
           <tbody>
             <tr><td>Name</td><td>Self Runner</td></tr>
             <tr><td>Symbol</td><td>$SRUN</td></tr>
-            <tr><td>Contract</td><td><code>0x0000...0000</code> <span class="tag tag-ink">TBA</span></td></tr>
+            <tr><td>Contract (Solana)</td><td><code>TBA</code> <span class="tag tag-ink">TBA</span></td></tr>
             <tr><td>Supply</td><td>Fixed at launch, no mint function</td></tr>
             <tr><td>Tax / Transfer fee</td><td>None — all fees are AMM swap fees via Bootstrap</td></tr>
             <tr><td>Ownership</td><td>Renounced post-deployment</td></tr>
@@ -880,7 +924,7 @@
             <tr><td><code>routingThreshold</code></td><td>Accumulation threshold before routing triggers</td><td><span class="tag tag-blue">Keeper</span></td></tr>
             <tr><td><code>maxBuybackImpact</code></td><td>Max price impact per buyback execution</td><td><span class="tag tag-ink">No</span></td></tr>
             <tr><td><code>lpRangeWidth</code></td><td>Tick range for new LP positions (±N ticks from current)</td><td><span class="tag tag-ink">No</span></td></tr>
-            <tr><td><code>burnAddress</code></td><td><code>0x000...dEaD</code></td><td><span class="tag tag-ink">No</span></td></tr>
+            <tr><td><code>burnAddress</code></td><td>Solana burn address</td><td><span class="tag tag-ink">No</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -918,7 +962,7 @@
 
       <h3>What chain is Self Runner on?</h3>
       <p>
-        Contract address and chain details will be published at launch. Check the <a href="https://x.com/i/communities/2029489835673547245" target="_blank" style="color:var(--blue)">X Community</a> for updates.
+        Self Runner is deployed on <strong>Solana</strong>. Contract address will be published at launch. Check the <a href="https://x.com/i/communities/2029489835673547245" target="_blank" style="color:var(--blue)">X Community</a> for updates.
       </p>
 
       <h3>Who can trigger fee routing?</h3>
