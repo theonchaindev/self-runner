@@ -619,6 +619,110 @@
     opacity: 0.25;
   }
 
+  /* ─── Powered By ────────────────────────────────────── */
+  .powered-by {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+  }
+
+  .powered-by-inner {
+    border: 2px solid var(--ink);
+    border-radius: 12px;
+    background: var(--paper-dark);
+    box-shadow: 6px 6px 0 var(--ink);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .powered-by-badge {
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 28px;
+    gap: 8px;
+    border-right: 2px solid var(--ink);
+    min-width: 140px;
+  }
+
+  .powered-by-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    opacity: 0.55;
+    white-space: nowrap;
+  }
+
+  .powered-by-name {
+    font-family: var(--font-brush);
+    font-size: 1.8rem;
+    line-height: 1;
+    color: var(--paper);
+  }
+
+  .powered-by-name span {
+    color: #6fa3f7;
+  }
+
+  .powered-by-content {
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .powered-by-tagline {
+    font-family: var(--font-brush);
+    font-size: clamp(1.3rem, 3vw, 1.9rem);
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .powered-by-desc {
+    font-size: 1.05rem;
+    color: var(--ink-light);
+    line-height: 1.6;
+    max-width: 620px;
+  }
+
+  .powered-by-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .powered-by-pill {
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1.5px solid var(--ink);
+    border-radius: 100px;
+    padding: 3px 14px;
+    color: var(--ink-light);
+    background: var(--paper);
+    white-space: nowrap;
+  }
+
+  .powered-by-pill.blue {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: var(--blue-faint);
+  }
+
+  @media (max-width: 640px) {
+    .powered-by-inner { grid-template-columns: 1fr; }
+    .powered-by-badge { flex-direction: row; border-right: none; border-bottom: 2px solid var(--ink); padding: 20px 24px; }
+    .powered-by-content { padding: 24px; }
+  }
+
   /* ─── CTA / Contract ───────────────────────────────── */
   .cta-section {
     text-align: center;
@@ -756,7 +860,7 @@
 
 <!-- ─── Hero ─────────────────────────────────────────── -->
 <section class="hero">
-  <span class="hero-tag">Autonomous DeFi Engine</span>
+  <span class="hero-tag">Powered by Bootstrap · Autonomous DeFi Engine</span>
 
   <h1 class="hero-title">
     Self Runner
@@ -854,6 +958,39 @@
   <path d="M0 12 Q137.5 6 275 12 Q412.5 18 550 12 Q687.5 6 825 12 Q962.5 18 1100 12"
     stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="8 5" opacity="0.18"/>
 </svg>
+
+<!-- ─── Powered By Bootstrap ─────────────────────────── -->
+<div class="powered-by">
+  <div class="powered-by-inner">
+    <div class="powered-by-badge">
+      <span class="powered-by-label">Powered by</span>
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin:4px 0">
+        <!-- Bootstrap icon: sketch B + infrastructure base -->
+        <rect x="2" y="2" width="32" height="32" rx="6" stroke="#f4f0e8" stroke-width="1.5" fill="none" opacity="0.2"/>
+        <!-- Layers / infrastructure blocks -->
+        <rect x="6" y="24" width="24" height="5" rx="2" fill="#6fa3f7" opacity="0.9"/>
+        <rect x="9" y="18" width="18" height="5" rx="2" fill="#6fa3f7" opacity="0.65"/>
+        <rect x="13" y="12" width="10" height="5" rx="2" fill="#6fa3f7" opacity="0.4"/>
+        <!-- Up arrow -->
+        <path d="M18 10 L18 4 M15 7 L18 4 L21 7" stroke="#f4f0e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="powered-by-name">Boot<span>strap</span></span>
+    </div>
+    <div class="powered-by-content">
+      <div class="powered-by-tagline">The liquidity infrastructure<br>built for token longevity</div>
+      <p class="powered-by-desc">
+        Bootstrap is the on-chain engine underneath Self Runner. It intercepts trading fees at the protocol level — before they can leave — and routes them automatically into buybacks and liquidity depth. No multisig. No team wallet. No intervention required.
+      </p>
+      <div class="powered-by-pills">
+        <span class="powered-by-pill blue">Autonomous fee routing</span>
+        <span class="powered-by-pill blue">Non-extractable liquidity</span>
+        <span class="powered-by-pill blue">Compounding LP depth</span>
+        <span class="powered-by-pill">Zero governance risk</span>
+        <span class="powered-by-pill">Permissionless</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ─── How It Works ─────────────────────────────────── -->
 <section id="how-it-works">
