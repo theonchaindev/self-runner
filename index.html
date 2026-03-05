@@ -898,6 +898,17 @@
     100% goes directly into the LP every 30 minutes, and deeper liquidity compounds itself.
   </p>
 
+  <div style="display:flex;gap:0;border:1.5px solid rgba(26,26,26,0.2);border-radius:8px;background:rgba(244,240,232,0.75);backdrop-filter:blur(4px);overflow:hidden;margin-bottom:32px;opacity:0;animation:fadeUp 0.6s 0.44s ease forwards;">
+    <div style="padding:14px 28px;border-right:1.5px solid rgba(26,26,26,0.15);text-align:center;">
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-faint);margin-bottom:3px;">Liquidity</div>
+      <div style="font-family:var(--font-brush);font-size:1.55rem;color:var(--ink);" id="hero-lp">—</div>
+    </div>
+    <div style="padding:14px 28px;text-align:center;">
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-faint);margin-bottom:3px;">Market Cap</div>
+      <div style="font-family:var(--font-brush);font-size:1.55rem;color:var(--ink);" id="hero-mcap">—</div>
+    </div>
+  </div>
+
   <div class="hero-actions">
     <a href="#how-it-works" class="btn-primary">See How It Works</a>
     <a href="#fee-feed" class="btn-secondary">Live Fee Feed</a>
@@ -1368,18 +1379,21 @@ document.querySelectorAll('.how-step, .flywheel-item').forEach(el => observer.ob
 
   async function poll() {
     const [ds, ls] = await Promise.all([
-      rpcCall('getSignaturesForAddress', [DEV, {limit:5}]),
-      rpcCall('getSignaturesForAddress', [LP,  {limit:5}])
+      rpcCall('getSignaturesForAddress', [DEV, {limit:10}]),
+      rpcCall('getSignaturesForAddress', [LP,  {limit:10}])
     ]);
     const fresh = [];
     for (const s of (ds||[])) if (!seen.has(s.signature)) fresh.push({s, who:'dev'});
     for (const s of (ls||[])) if (!seen.has(s.signature)) fresh.push({s, who:'lp'});
 
-    for (const {s, who} of fresh.slice(0,6)) {
+    for (const {s, who} of fresh.slice(0,10)) {
       seen.add(s.signature);
       if (s.err) continue;
       const tx = await rpcCall('getTransaction', [s.signature,{encoding:'jsonParsed',maxSupportedTransactionVersion:0}]);
-      if (!tx || !involvesToken(tx)) continue;
+      if (!tx) continue;
+      // Dev wallet: only count txs that involve our token mint
+      // LP wallet: count ALL txs — Raydium LP adds use the LP mint, not token mint
+      if (who === 'dev' && !involvesToken(tx)) continue;
       const wallet = who === 'dev' ? DEV : LP;
       const sol = solDelta(tx, wallet);
       const tok = tokenDelta(tx, wallet);
@@ -1412,6 +1426,32 @@ document.querySelectorAll('.how-step, .flywheel-item').forEach(el => observer.ob
 
   poll();
   setInterval(poll, 30000);
+})();
+
+/* ── Market Data (DexScreener) ─────────────── */
+(function() {
+  function fmt(n) {
+    if (!n || isNaN(n)) return '—';
+    if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+    if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'K';
+    return '$' + n.toFixed(0);
+  }
+  async function fetchMkt() {
+    try {
+      const r = await fetch('https://api.dexscreener.com/latest/dex/tokens/D1hNgedHFgLnmFRn74Jb4cC18zEAwMqmu61oncr8pump');
+      const j = await r.json();
+      const pairs = j.pairs || [];
+      // pick highest-liquidity pair
+      const pair = pairs.sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0))[0];
+      if (!pair) return;
+      const lp = document.getElementById('hero-lp');
+      const mc = document.getElementById('hero-mcap');
+      if (lp) lp.textContent = fmt(pair.liquidity?.usd);
+      if (mc) mc.textContent = fmt(pair.fdv || pair.marketCap);
+    } catch {}
+  }
+  fetchMkt();
+  setInterval(fetchMkt, 60000);
 })();
 
 /* ── Copy CA ───────────────────────────────── */
